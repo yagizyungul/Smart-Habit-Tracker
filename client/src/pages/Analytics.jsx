@@ -89,7 +89,7 @@ export default function Analytics() {
           label="Bu Ay"
           value={`${dash?.monthlyCompletion ?? 0}%`}
           sub="tamamlanma oranı"
-          color="#534AB7"
+          color="#0B735F"
         />
         <StatCard
           label="En Uzun Seri"
@@ -125,7 +125,7 @@ export default function Analytics() {
                   <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${h.completionRate}%`, backgroundColor: h.color || '#534AB7' }}
+                      style={{ width: `${h.completionRate}%`, backgroundColor: h.color || '#0B735F' }}
                     />
                   </div>
                 </div>
@@ -151,7 +151,7 @@ export default function Analytics() {
                   {overview.monthlyTrend.map((_, i) => (
                     <Cell
                       key={i}
-                      fill={i === overview.monthlyTrend.length - 1 ? '#534AB7' : '#C4C1F0'}
+                      fill={i === overview.monthlyTrend.length - 1 ? '#0CDC2A' : '#639D75'}
                     />
                   ))}
                 </Bar>

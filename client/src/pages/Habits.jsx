@@ -35,7 +35,6 @@ export default function Habits() {
       setHabits(habits)
       setCheckedIds(new Set(checkinsRes.data.map((c) => String(c.habitId))))
 
-      // Fetch monthly completion rate for each habit
       const rates = {}
       await Promise.allSettled(
         habits.map(async (habit) => {
@@ -94,12 +93,15 @@ export default function Habits() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Alışkanlıklar</h1>
+        <div>
+          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#639D75]">rutin bahçesi</p>
+          <h1 className="text-3xl font-black text-[#384166]">Alışkanlıklar</h1>
+        </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 bg-[#534AB7] text-white text-sm font-medium rounded-lg hover:bg-[#443c9a] transition-colors"
+          className="flex flex-shrink-0 items-center gap-1.5 rounded-2xl bg-[#0B735F] px-4 py-2.5 text-sm font-black text-white shadow-xl shadow-[#0B735F]/20 transition hover:-translate-y-0.5 hover:bg-[#095f50]"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           <span className="hidden sm:inline">Yeni Alışkanlık</span>
@@ -107,48 +109,45 @@ export default function Habits() {
         </button>
       </div>
 
-      {/* Filters */}
       <div className="flex gap-2">
         {FILTERS.map(({ value, label }) => (
           <button
             key={value}
             onClick={() => setFilter(value)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
+            className={`rounded-2xl border px-4 py-2 text-sm font-black transition ${
               filter === value
-                ? 'bg-[#EEEDFE] border-[#534AB7] text-[#534AB7]'
-                : 'border-gray-200 text-gray-600 hover:border-gray-300 bg-white'
+                ? 'border-[#0B735F] bg-[#0B735F] text-white'
+                : 'border-white/70 bg-white/78 text-[#384166] hover:border-[#639D75]/45'
             }`}
           >
             {label}
           </button>
         ))}
         {habits.length > 0 && (
-          <span className="ml-auto text-sm text-gray-400 self-center">
+          <span className="ml-auto self-center text-sm font-bold text-[#639D75]">
             {filtered.length} alışkanlık
           </span>
         )}
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-          <div className="text-5xl mb-4">🌱</div>
-          <p className="text-gray-700 font-medium mb-1">Henüz alışkanlık yok</p>
-          <p className="text-gray-400 text-sm mb-5">
-            {filter === 'all'
-              ? 'İlk alışkanlığını ekleyerek başla'
-              : 'Bu kategoride alışkanlık bulunmuyor'}
+        <div className="rounded-[2rem] border border-white/70 bg-white/82 p-12 text-center shadow-[0_18px_60px_rgba(56,65,102,0.10)] backdrop-blur">
+          <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-[#0CDC2A]/15 text-3xl text-[#0B735F] pulse-sprout">✓</div>
+          <p className="mb-1 font-black text-[#384166]">Henüz alışkanlık yok</p>
+          <p className="mb-5 text-sm font-semibold text-[#639D75]">
+            {filter === 'all' ? 'İlk alışkanlığını ekleyerek başla' : 'Bu kategoride alışkanlık bulunmuyor'}
           </p>
           {filter === 'all' && (
             <button
               onClick={() => setShowForm(true)}
-              className="px-5 py-2.5 bg-[#534AB7] text-white text-sm font-medium rounded-lg hover:bg-[#443c9a] transition-colors"
+              className="rounded-2xl bg-[#0B735F] px-5 py-2.5 text-sm font-black text-white transition hover:bg-[#095f50]"
             >
               Alışkanlık Ekle
             </button>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((habit) => (
             <HabitCard
               key={habit._id}

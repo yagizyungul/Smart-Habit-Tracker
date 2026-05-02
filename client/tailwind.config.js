@@ -5,9 +5,11 @@ export default {
     extend: {
       colors: {
         brand: {
-          green: '#1D9E75',
-          purple: '#534AB7',
-          'purple-soft': '#7F77DD',
+          cream: '#E3DBA9',
+          sage: '#639D75',
+          forest: '#0B735F',
+          ink: '#384166',
+          neon: '#0CDC2A',
         },
       },
     },

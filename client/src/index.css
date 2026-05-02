@@ -3,7 +3,81 @@
 @tailwind utilities;
 
 @layer base {
+  * {
+    @apply border-slate-200;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-[#F7F5E7] text-[#384166] antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  ::selection {
+    @apply bg-[#0CDC2A]/25 text-[#0B735F];
+  }
+}
+
+@layer utilities {
+  .botanic-bg {
+    background:
+      radial-gradient(circle at 12% 12%, rgba(12, 220, 42, 0.18), transparent 24%),
+      radial-gradient(circle at 82% 8%, rgba(99, 157, 117, 0.24), transparent 28%),
+      radial-gradient(circle at 50% 100%, rgba(11, 115, 95, 0.18), transparent 34%),
+      linear-gradient(135deg, #f8f6e8 0%, #eef1d8 46%, #d9ead2 100%);
+  }
+
+  .leaf {
+    position: absolute;
+    width: 82px;
+    height: 36px;
+    border-radius: 90% 12% 90% 12%;
+    background: linear-gradient(135deg, rgba(12, 220, 42, 0.74), rgba(11, 115, 95, 0.78));
+    box-shadow: inset 12px -10px 18px rgba(227, 219, 169, 0.25), 0 18px 40px rgba(11, 115, 95, 0.18);
+    transform: rotate(-24deg);
+    opacity: 0.72;
+    animation: leafFloat 8s ease-in-out infinite;
+  }
+
+  .leaf::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 10px;
+    top: 17px;
+    height: 1px;
+    background: rgba(227, 219, 169, 0.64);
+    transform: rotate(-6deg);
+  }
+
+  .leaf-soft {
+    background: linear-gradient(135deg, rgba(99, 157, 117, 0.58), rgba(227, 219, 169, 0.64));
+  }
+
+  .pulse-sprout {
+    animation: pulseSprout 2.8s ease-in-out infinite;
+  }
+
+  .grow-bar {
+    animation: growBar 1.15s cubic-bezier(.2, .8, .2, 1) both;
+    transform-origin: left;
+  }
+
+  @keyframes leafFloat {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(-24deg); }
+    50% { transform: translate3d(10px, -18px, 0) rotate(-15deg); }
+  }
+
+  @keyframes pulseSprout {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(12, 220, 42, 0.26); }
+    50% { box-shadow: 0 0 0 16px rgba(12, 220, 42, 0); }
+  }
+
+  @keyframes growBar {
+    from { transform: scaleX(0.08); opacity: 0.3; }
+    to { transform: scaleX(1); opacity: 1; }
   }
 }

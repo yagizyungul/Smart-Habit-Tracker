@@ -1,11 +1,11 @@
 export default function LoadingSpinner({ fullScreen = false }) {
   const spinner = (
-    <div className="animate-spin rounded-full h-9 w-9 border-[3px] border-gray-200 border-t-[#534AB7]" />
+    <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-[#E3DBA9] border-t-[#0B735F]" />
   )
 
   if (fullScreen) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="botanic-bg flex min-h-screen items-center justify-center">
         {spinner}
       </div>
     )

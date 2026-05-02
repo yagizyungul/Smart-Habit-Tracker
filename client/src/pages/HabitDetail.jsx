@@ -96,7 +96,7 @@ export default function HabitDetail() {
     return (
       <div className="text-center py-16">
         <p className="text-gray-500 mb-4">Alışkanlık bulunamadı.</p>
-        <Link to="/habits" className="text-[#534AB7] font-medium hover:underline">
+        <Link to="/habits" className="text-[#0B735F] font-medium hover:underline">
           ← Alışkanlıklara dön
         </Link>
       </div>
@@ -119,7 +119,7 @@ export default function HabitDetail() {
             <div className="flex items-center gap-2">
               <div
                 className="w-4 h-4 rounded-full flex-shrink-0"
-                style={{ backgroundColor: habit.color || '#534AB7' }}
+                style={{ backgroundColor: habit.color || '#0B735F' }}
               />
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{habit.title}</h1>
             </div>
@@ -155,7 +155,7 @@ export default function HabitDetail() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard label="Mevcut Seri" value={analytics?.currentStreak ?? 0} unit="gün" color="#F59E0B" />
         <StatCard label="En İyi Seri" value={analytics?.bestStreak ?? 0} unit="gün" color="#1D9E75" />
-        <StatCard label="Bu Ay" value={`${analytics?.completionRate ?? 0}%`} color="#534AB7" />
+        <StatCard label="Bu Ay" value={`${analytics?.completionRate ?? 0}%`} color="#0B735F" />
         <StatCard label="Toplam" value={analytics?.completedDays ?? 0} unit="gün" color="#3B82F6" />
       </div>
 
@@ -188,7 +188,7 @@ export default function HabitDetail() {
               />
               <Bar dataKey="done" radius={[3, 3, 0, 0]}>
                 {barData.map((entry, i) => (
-                  <Cell key={i} fill={entry.done === 1 ? (habit.color || '#534AB7') : '#E5E7EB'} />
+                  <Cell key={i} fill={entry.done === 1 ? (habit.color || '#0B735F') : '#E3DBA9'} />
                 ))}
               </Bar>
             </BarChart>

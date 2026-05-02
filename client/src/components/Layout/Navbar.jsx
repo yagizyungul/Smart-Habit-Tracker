@@ -8,6 +8,21 @@ const NAV = [
   { to: '/analytics', label: 'Analitik' },
 ]
 
+function Icon({ name, className = 'w-5 h-5' }) {
+  const paths = {
+    menu: 'M4 6h16M4 12h16M4 18h16',
+    close: 'M6 18 18 6M6 6l12 12',
+    logout: 'M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5M14 21h5a2 2 0 0 0 2-2',
+    spark: 'M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3Z',
+  }
+
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={paths[name]} />
+    </svg>
+  )
+}
+
 export default function Navbar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -19,19 +34,22 @@ export default function Navbar() {
   }
 
   const linkClass = ({ isActive }) =>
-    `px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-      isActive ? 'bg-[#EEEDFE] text-[#534AB7]' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+    `rounded-lg px-3 py-2 text-sm font-bold transition ${
+      isActive ? 'bg-[#0B735F] text-white shadow-lg shadow-[#0B735F]/18' : 'text-[#384166] hover:bg-[#E3DBA9]/45 hover:text-[#0B735F]'
     }`
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-30">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
-          <Link to="/dashboard" className="text-[#534AB7] font-bold text-lg tracking-tight">
-            Streakly
+    <nav className="sticky top-0 z-30 border-b border-white/70 bg-[#F8F6E8]/82 backdrop-blur-xl">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          <Link to="/dashboard" className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-lg bg-[#0B735F] text-[#0CDC2A] shadow-lg shadow-[#0B735F]/20">
+              <Icon name="spark" className="h-5 w-5" />
+            </span>
+            <span className="text-lg font-black tracking-tight text-[#0B735F]">Streakly</span>
           </Link>
 
-          <div className="hidden sm:flex items-center gap-1">
+          <div className="hidden items-center rounded-lg border border-[#639D75]/20 bg-white/72 p-1 shadow-sm sm:flex">
             {NAV.map(({ to, label }) => (
               <NavLink key={to} to={to} className={linkClass}>
                 {label}
@@ -40,45 +58,45 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:block text-sm text-gray-500 max-w-[120px] truncate">{user?.name}</span>
-            <button
-              onClick={handleLogout}
-              className="hidden sm:block text-sm text-gray-500 hover:text-red-600 transition-colors"
-            >
-              Çıkış
-            </button>
+            <div className="hidden items-center gap-3 sm:flex">
+              <div className="min-w-0 text-right">
+                <div className="max-w-[150px] truncate text-sm font-black text-[#384166]">{user?.name}</div>
+                <div className="text-xs font-medium text-[#639D75]">aktif oturum</div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="grid h-10 w-10 place-items-center rounded-lg border border-[#639D75]/20 bg-white text-[#639D75] transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                aria-label="Çıkış yap"
+              >
+                <Icon name="logout" className="h-5 w-5" />
+              </button>
+            </div>
             <button
               onClick={() => setOpen(!open)}
-              className="sm:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100"
+              className="grid h-10 w-10 place-items-center rounded-lg border border-[#639D75]/20 bg-white text-[#0B735F] sm:hidden"
               aria-label="Menü"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {open ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
+              <Icon name={open ? 'close' : 'menu'} className="h-5 w-5" />
             </button>
           </div>
         </div>
 
         {open && (
-          <div className="sm:hidden border-t border-gray-100 py-2 space-y-0.5">
-            {NAV.map(({ to, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                onClick={() => setOpen(false)}
-                className={({ isActive }) => linkClass({ isActive }) + ' block'}
-              >
-                {label}
-              </NavLink>
-            ))}
-            <div className="flex items-center justify-between px-3 pt-2 mt-2 border-t border-gray-100">
-              <span className="text-sm text-gray-500">{user?.name}</span>
-              <button onClick={handleLogout} className="text-sm text-red-500 hover:text-red-700">
-                Çıkış Yap
+          <div className="sm:hidden pb-4">
+            <div className="space-y-1 rounded-lg border border-[#639D75]/20 bg-white p-2 shadow-xl">
+              {NAV.map(({ to, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  onClick={() => setOpen(false)}
+                  className={({ isActive }) => `${linkClass({ isActive })} block`}
+                >
+                  {label}
+                </NavLink>
+              ))}
+              <button onClick={handleLogout} className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-bold text-red-600 hover:bg-red-50">
+                Çıkış yap
+                <Icon name="logout" className="h-4 w-4" />
               </button>
             </div>
           </div>
