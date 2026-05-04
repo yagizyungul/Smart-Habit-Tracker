@@ -472,9 +472,9 @@ export default function Login() {
 
         {/* Phones area */}
         <div style={{ flex: 1, position: 'relative', zIndex: 10 }}>
-          {/* Ground glow horizon */}
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(to right, transparent, rgba(103,192,144,0.28), transparent)' }}/>
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 120, background: 'linear-gradient(to top, rgba(103,192,144,0.05), transparent)', pointerEvents: 'none' }}/>
+          {/* Ground glow horizon - Radial to prevent sharp horizontal cutoffs */}
+          <div style={{ position: 'absolute', bottom: 0, left: '5%', right: '5%', height: 1, background: 'radial-gradient(ellipse at center, rgba(103,192,144,0.3) 0%, transparent 70%)' }}/>
+          <div style={{ position: 'absolute', bottom: 0, left: '-20%', right: '-20%', height: 150, background: 'radial-gradient(ellipse at bottom, rgba(103,192,144,0.08) 0%, transparent 65%)', pointerEvents: 'none' }}/>
 
           {/* ─── PHONE BACK (Analytics) ─── */}
           <div style={{ position: 'absolute', bottom: -35, left: 'calc(50% - 218px)', zIndex: 1 }}>
