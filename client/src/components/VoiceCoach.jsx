@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react'
 import api from '../services/api'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mic, Send, X, Square, Bot, User as UserIcon } from 'lucide-react'
