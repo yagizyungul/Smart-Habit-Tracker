@@ -4,6 +4,55 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Navbar from './Navbar'
 import VoiceCoach from '../VoiceCoach'
 
+function FloatingDashes() {
+  const particles = useMemo(() => {
+    const palette = [
+      '#67C090', '#AAFFC7', '#3B82F6', '#6366F1',
+      '#A78BFA', '#34D399', '#60A5FA', '#0EA5E9',
+      '#10B981', '#38BDF8', '#818CF8',
+    ]
+    return Array.from({ length: 45 }, (_, i) => {
+      const isCircle = i % 5 === 0
+      const sz = isCircle ? Math.random() * 4 + 2 : null
+      return {
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        w: isCircle ? sz : Math.random() * 13 + 5,
+        h: isCircle ? sz : 2.2 + Math.random() * 1.2,
+        isCircle,
+        angle: Math.random() * 360,
+        dur: Math.random() * 18 + 8,
+        delay: -(Math.random() * 28),
+        op: Math.random() * 0.4 + 0.1,
+        color: palette[Math.floor(Math.random() * palette.length)],
+      }
+    })
+  }, [])
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
+      {particles.map(p => (
+        <div key={p.id} style={{
+          position: 'absolute',
+          left: `${p.x}%`,
+          top: `${p.y}%`,
+          transform: `rotate(${p.angle}deg)`,
+        }}>
+          <div style={{
+            width: p.w,
+            height: p.h,
+            borderRadius: p.isCircle ? '50%' : p.h / 2,
+            background: p.color,
+            opacity: p.op,
+            animation: `floatParticle ${p.dur}s ease-in-out ${p.delay}s infinite`,
+          }}/>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function ParticleField() {
   const particles = useMemo(() =>
     Array.from({ length: 28 }, (_, i) => ({
@@ -55,10 +104,11 @@ export default function AppLayout() {
       </div>
 
       <ParticleField />
+      <FloatingDashes />
 
       <Navbar />
 
-      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-28">
+      <main className="relative z-10 w-full px-4 sm:px-8 lg:px-12 2xl:px-16 py-8 pt-28">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

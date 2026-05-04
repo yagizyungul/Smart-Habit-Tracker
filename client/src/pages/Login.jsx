@@ -1,8 +1,16 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, Lock, ArrowRight, Zap } from 'lucide-react'
+
+const HERO_LINES = [
+  { top: 'Alışkanlıklarını', bottom: 'Takip Et.' },
+  { top: 'Hedeflerine', bottom: 'Ulaş.' },
+  { top: 'Serileri', bottom: 'Kır.' },
+  { top: 'Değişimi', bottom: 'Başlat.' },
+  { top: 'Kendinle', bottom: 'Yarış.' },
+]
 
 /* ─── Particle Background ─── */
 function ParticleField() {
@@ -335,6 +343,12 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [lineIdx, setLineIdx] = useState(0)
+
+  useEffect(() => {
+    const t = setInterval(() => setLineIdx(i => (i + 1) % HERO_LINES.length), 3500)
+    return () => clearInterval(t)
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -393,10 +407,24 @@ export default function Login() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.38, duration: 0.72, ease: 'easeOut' }}
           >
-            <h1 style={{ fontSize: 46, fontWeight: 900, color: '#fff', lineHeight: 1.08, marginBottom: 14, letterSpacing: '-0.025em' }}>
-              Alışkanlıklarını<br />
-              <span style={{ color: '#AAFFC7', textShadow: '0 0 28px rgba(170,255,199,0.5)' }}>Takip Et.</span>
-            </h1>
+            {/* Cycling headline — slot-machine vertical slide */}
+            <div style={{ position: 'relative', height: 108, overflow: 'hidden', marginBottom: 14 }}>
+              <AnimatePresence mode="wait">
+                <motion.h1
+                  key={lineIdx}
+                  style={{ position: 'absolute', width: '100%', fontSize: 46, fontWeight: 900, color: '#fff', lineHeight: 1.08, letterSpacing: '-0.025em', margin: 0 }}
+                  initial={{ x: 100, opacity: 0, filter: 'blur(8px)' }}
+                  animate={{ x: 0, opacity: 1, filter: 'blur(0px)' }}
+                  exit={{ x: -100, opacity: 0, filter: 'blur(8px)' }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {HERO_LINES[lineIdx].top}<br />
+                  <span style={{ color: '#AAFFC7', textShadow: '0 0 28px rgba(170,255,199,0.5)' }}>
+                    {HERO_LINES[lineIdx].bottom}
+                  </span>
+                </motion.h1>
+              </AnimatePresence>
+            </div>
             <p style={{ fontSize: 14, color: '#94a3b8', lineHeight: 1.7, maxWidth: 300 }}>
               Her gün bir adım daha ileri. Güçlü seriler oluştur, hedeflerini gerçeğe dönüştür.
             </p>

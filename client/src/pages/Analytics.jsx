@@ -162,8 +162,8 @@ export default function Analytics() {
         />
       </motion.div>
 
-      {/* Habit success rates + Monthly trend */}
-      <motion.div variants={containerVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {/* Habit success rates + Monthly trend + Daily Last 30 */}
+      <motion.div variants={containerVariants} className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
 
         {/* Habit success rates */}
         <motion.div
@@ -244,13 +244,11 @@ export default function Analytics() {
             <div className="h-40 flex items-center justify-center text-slate-600 text-sm">Henüz veri yok</div>
           )}
         </motion.div>
-      </motion.div>
-
-      {/* Daily last 30 days */}
-      <motion.div
-        variants={itemVariants}
-        className="glass-card p-6"
-      >
+        {/* Daily last 30 days */}
+        <motion.div
+          variants={itemVariants}
+          className="glass-card p-6"
+        >
         <h2 className="text-base font-bold text-slate-100 mb-6">Son 30 Gün — Günlük Tamamlanma</h2>
         {overview?.dailyLast30?.length ? (
           <ResponsiveContainer width="100%" height={140}>
@@ -286,6 +284,7 @@ export default function Analytics() {
         ) : (
           <div className="h-32 flex items-center justify-center text-slate-600 text-sm">Henüz veri yok</div>
         )}
+      </motion.div>
       </motion.div>
 
       {/* Heatmap */}

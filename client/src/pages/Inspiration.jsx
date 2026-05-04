@@ -90,13 +90,13 @@ export default function Inspiration() {
       {/* Quote Card */}
       <motion.div 
         variants={itemVariants}
-        className="glass-card p-8 text-white relative overflow-hidden"
+        className="glass-card p-6 text-white relative overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #215B63, #124170)' }}
       >
-        <div className="absolute top-0 right-0 text-[180px] opacity-10 select-none leading-none -translate-y-12">❝</div>
-        <p className="text-2xl font-bold leading-relaxed mb-4 relative z-10 text-glow">"{quotes[quoteIdx].q}"</p>
-        <p className="text-slate-300 text-sm font-bold uppercase tracking-widest relative z-10">— {quotes[quoteIdx].a}</p>
-        <div className="flex gap-2 mt-8">
+        <div className="absolute top-0 right-0 text-[140px] opacity-10 select-none leading-none -translate-y-8">❝</div>
+        <p className="text-xl font-bold leading-relaxed mb-3 relative z-10 text-glow">"{quotes[quoteIdx].q}"</p>
+        <p className="text-slate-300 text-xs font-bold uppercase tracking-widest relative z-10">— {quotes[quoteIdx].a}</p>
+        <div className="flex gap-2 mt-5">
           {quotes.map((_, i) => (
             <button key={i} onClick={() => setQuoteIdx(i)} className="w-2 h-2 rounded-full transition-all" style={{ background: i === quoteIdx ? '#AAFFC7' : 'rgba(255,255,255,0.1)' }} />
           ))}
@@ -129,7 +129,7 @@ export default function Inspiration() {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"
         >
           {BOOKS.map((book, i) => (
             <a key={book.id} href={book.link} target="_blank" rel="noopener noreferrer"
@@ -156,7 +156,7 @@ export default function Inspiration() {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
         >
           {PLAYLISTS.map((p) => (
             <a key={p.name} href={p.link} target="_blank" rel="noopener noreferrer"
