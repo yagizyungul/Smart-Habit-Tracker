@@ -386,6 +386,9 @@ export default function Login() {
         {/* Subtle grid */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.018, backgroundImage: 'linear-gradient(rgba(170,255,199,1) 1px, transparent 1px), linear-gradient(90deg, rgba(170,255,199,1) 1px, transparent 1px)', backgroundSize: '44px 44px' }}/>
 
+        {/* Smooth gradient transition to the right panel */}
+        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '30%', background: 'linear-gradient(to right, transparent, #07071a)', zIndex: 1, pointerEvents: 'none' }}/>
+
         {/* Top section: logo + headline */}
         <div style={{ position: 'relative', zIndex: 10, padding: '42px 52px 0' }}>
           {/* Logo */}
@@ -519,8 +522,6 @@ export default function Login() {
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 40px', position: 'relative', zIndex: 10, overflow: 'hidden' }}>
 
         {/* ── Right panel background ── */}
-        {/* Separator line (desktop only) */}
-        <div className="hidden lg:block" style={{ position: 'absolute', left: 0, top: '6%', bottom: '6%', width: 1, background: 'linear-gradient(to bottom, transparent, rgba(170,255,199,0.16), transparent)', zIndex: 1 }}/>
 
         {/* Antigravity-style floating dashes */}
         <FloatingDashes />
