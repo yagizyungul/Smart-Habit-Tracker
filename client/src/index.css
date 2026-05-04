@@ -144,6 +144,17 @@
   animation: float 4s ease-in-out infinite;
 }
 
+@keyframes floatParticle {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: var(--op, 0.15); }
+  33%       { transform: translateY(-18px) translateX(8px); }
+  66%       { transform: translateY(10px) translateX(-6px); }
+}
+
+.text-glow-mint {
+  color: #AAFFC7;
+  text-shadow: 0 0 12px rgba(170,255,199,0.5);
+}
+
 /* Page transitions support */
 .page-enter {
   opacity: 0;
