@@ -8,12 +8,18 @@ const { calcStreak, calcCompletionRate } = require('../utils/streak');
 const router = express.Router();
 router.use(protect);
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-const jsonModel = genAI.getGenerativeModel({ 
-  model: 'gemini-1.5-flash',
-  generationConfig: { responseMimeType: 'application/json' } 
-});
+// Gemini client'ı lazy olarak başlatıyoruz — API key eksikse route 404 yerine 503 döner
+function getModels() {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error('GEMINI_API_KEY ortam değişkeni tanımlı değil');
+  const genAI = new GoogleGenerativeAI(key);
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const jsonModel = genAI.getGenerativeModel({
+    model: 'gemini-1.5-flash',
+    generationConfig: { responseMimeType: 'application/json' },
+  });
+  return { model, jsonModel };
+}
 
 async function getUserContext(userId) {
   const today = new Date().toISOString().split('T')[0];
@@ -68,6 +74,7 @@ router.post('/chat', async (req, res, next) => {
 
     const userContext = await getUserContext(req.user.id);
 
+    const { model } = getModels();
     const chat = model.startChat({
       history: [
         { role: 'user', parts: [{ text: `${SYSTEM_PROMPT}\n\n${userContext}` }] },
@@ -107,6 +114,7 @@ Bu metni bir alışkanlık nesnesine dönüştür. Sadece JSON döndür:
 
 Kurallar: daily→[0-6], hafta içi→[1,2,3,4,5], hafta sonu→[0,6]. Renk: spor=#EF4444, meditasyon=#8B5CF6, okuma=#1D9E75, su=#3B82F6, diğer=#7F77DD.`;
 
+    const { jsonModel } = getModels();
     const result = await jsonModel.generateContent(prompt);
     const reply = result.response.text();
     const parsed = JSON.parse(reply);
