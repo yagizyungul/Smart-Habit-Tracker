@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
 const FREQ_LABELS = { daily: 'Her gün', weekly: 'Haftalık', custom: 'Özel' }
 
@@ -9,49 +10,110 @@ export default function HabitCard({ habit, checked, onCheck, completionRate = 0 
     onCheck(habit._id, checked)
   }
 
+  const color = habit.color || '#8B5CF6'
+
   return (
     <Link to={`/habits/${habit._id}`} className="block group">
-      <div
-        className={`h-full rounded-2xl border bg-white/82 p-4 shadow-[0_16px_45px_rgba(56,65,102,0.08)] backdrop-blur transition-all group-hover:-translate-y-1 ${
-          checked ? 'border-[#0CDC2A]/55 bg-[#0CDC2A]/10' : 'border-white/70 hover:border-[#639D75]/45'
-        }`}
+      <motion.div
+        className="relative rounded-2xl p-4 h-full transition-all duration-300 overflow-hidden cursor-pointer"
+        style={{
+          background: checked
+            ? `linear-gradient(135deg, ${color}10, ${color}06)`
+            : 'rgba(255,255,255,0.04)',
+          border: checked
+            ? `1px solid ${color}40`
+            : '1px solid rgba(255,255,255,0.08)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          boxShadow: checked
+            ? `0 0 20px ${color}18, 0 4px 24px rgba(0,0,0,0.3)`
+            : '0 4px 24px rgba(0,0,0,0.25)',
+        }}
+        whileHover={{
+          y: -3,
+          boxShadow: `0 0 24px ${color}22, 0 8px 36px rgba(0,0,0,0.4)`,
+          border: `1px solid ${color}50`,
+        }}
+        transition={{ duration: 0.22 }}
       >
-        <div className="mb-4 flex items-start justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-3">
-            <button
+        {/* Color accent line */}
+        <div
+          className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl"
+          style={{
+            background: `linear-gradient(to right, ${color}80, ${color}20, transparent)`,
+          }}
+        />
+
+        {/* Card body */}
+        <div className="flex items-start justify-between mb-3 gap-2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {/* Checkbox */}
+            <motion.button
               onClick={handleCheck}
-              className={`grid h-9 w-9 flex-shrink-0 place-items-center rounded-2xl border-2 transition-all ${
-                checked
-                  ? 'border-[#0B735F] bg-[#0B735F] text-white pulse-sprout'
-                  : 'border-[#639D75]/35 bg-[#F9F7EA] text-[#639D75] hover:border-[#0CDC2A] hover:text-[#0B735F]'
-              }`}
-              aria-label={checked ? `${habit.title} tamamlandı` : `${habit.title} tamamla`}
+              className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200"
+              style={checked ? {
+                background: color,
+                boxShadow: `0 0 12px ${color}60`,
+              } : {
+                border: `2px solid rgba(255,255,255,0.18)`,
+                background: 'transparent',
+              }}
+              whileTap={{ scale: 0.88 }}
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </button>
+              {checked && (
+                <motion.svg
+                  className="w-3.5 h-3.5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  initial={{ scale: 0, rotate: -10 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </motion.svg>
+              )}
+            </motion.button>
+
             <div className="min-w-0">
-              <div className="truncate text-sm font-black leading-tight text-[#384166]">{habit.title}</div>
-              <div className="mt-0.5 text-xs font-semibold text-[#639D75]">{FREQ_LABELS[habit.frequency] || habit.frequency}</div>
+              <div className={`font-semibold text-sm leading-tight truncate transition-all ${
+                checked ? 'text-slate-500 line-through' : 'text-slate-100'
+              }`}>
+                {habit.title}
+              </div>
+              <div className="text-xs text-slate-600 mt-0.5 font-medium">
+                {FREQ_LABELS[habit.frequency] || habit.frequency}
+              </div>
             </div>
           </div>
-          <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: habit.color || '#0B735F' }} />
+
+          {/* Color dot */}
+          <div
+            className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5"
+            style={{
+              backgroundColor: color,
+              boxShadow: `0 0 6px ${color}80`,
+            }}
+          />
         </div>
 
+        {/* Progress bar */}
         <div>
-          <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-xs font-bold text-[#639D75]">Bu ay</span>
-            <span className="text-xs font-black text-[#384166]">{completionRate}%</span>
+          <div className="flex justify-between items-center mb-1.5">
+            <span className="text-[10px] text-slate-600 font-medium uppercase tracking-wider">Bu ay</span>
+            <span className="text-[11px] font-bold" style={{ color }}>{completionRate}%</span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-[#E3DBA9]/45">
-            <div
-              className="grow-bar h-full rounded-full transition-all duration-500"
-              style={{ width: `${completionRate}%`, backgroundColor: habit.color || '#0CDC2A' }}
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <motion.div
+              className="h-full rounded-full"
+              style={{ background: `linear-gradient(to right, ${color}aa, ${color})` }}
+              initial={{ width: 0 }}
+              animate={{ width: `${completionRate}%` }}
+              transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
             />
           </div>
         </div>
-      </div>
+      </motion.div>
     </Link>
   )
 }

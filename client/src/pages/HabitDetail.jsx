@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
-} from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { motion } from 'framer-motion'
+import { ChevronLeft, Pencil, Trash2, Flame, Star, TrendingUp, Calendar } from 'lucide-react'
 import api from '../services/api'
 import HabitForm from '../components/HabitForm'
 import HeatmapGrid from '../components/HeatmapGrid'
@@ -10,15 +10,48 @@ import LoadingSpinner from '../components/LoadingSpinner'
 
 const FREQ_LABELS = { daily: 'Her gün', weekly: 'Haftalık', custom: 'Özel günler' }
 
-function StatCard({ label, value, unit, color }) {
+const DARK_TOOLTIP = {
+  background: 'rgba(14,14,26,0.95)',
+  backdropFilter: 'blur(12px)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: '12px',
+  fontSize: '12px',
+  color: '#E2E8F0',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+  padding: '8px 12px',
+}
+
+const containerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+}
+const itemVariants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+}
+
+function StatCard({ label, value, unit, icon: Icon, color }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4">
-      <div className="text-xs font-medium text-gray-500 mb-1">{label}</div>
-      <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-bold" style={{ color }}>{value}</span>
-        {unit && <span className="text-sm text-gray-400">{unit}</span>}
+    <motion.div
+      variants={itemVariants}
+      className="relative rounded-2xl p-5 overflow-hidden"
+      style={{
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        backdropFilter: 'blur(12px)',
+      }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+    >
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3"
+        style={{ background: `${color}18` }}>
+        <Icon className="w-4.5 h-4.5" style={{ color }} />
       </div>
-    </div>
+      <div className="flex items-baseline gap-1.5">
+        <span className="stat-number text-2xl" style={{ color }}>{value}</span>
+        {unit && <span className="text-sm text-slate-500">{unit}</span>}
+      </div>
+      <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mt-0.5">{label}</div>
+    </motion.div>
   )
 }
 
@@ -32,9 +65,7 @@ export default function HabitDetail() {
   const [loading, setLoading] = useState(true)
   const [editLoading, setEditLoading] = useState(false)
 
-  useEffect(() => {
-    loadData()
-  }, [id])
+  useEffect(() => { loadData() }, [id])
 
   const loadData = async () => {
     setLoading(true)
@@ -83,20 +114,17 @@ export default function HabitDetail() {
       const d = new Date()
       d.setDate(d.getDate() - (27 - i))
       const ds = d.toISOString().split('T')[0]
-      return {
-        label: d.getDate().toString(),
-        done: set.has(ds) ? 1 : 0,
-        date: ds,
-      }
+      return { label: d.getDate().toString(), done: set.has(ds) ? 1 : 0, date: ds }
     })
   }
 
   if (loading) return <LoadingSpinner />
+
   if (!habit) {
     return (
       <div className="text-center py-16">
-        <p className="text-gray-500 mb-4">Alışkanlık bulunamadı.</p>
-        <Link to="/habits" className="text-[#0B735F] font-medium hover:underline">
+        <p className="text-slate-500 mb-4">Alışkanlık bulunamadı.</p>
+        <Link to="/habits" className="text-violet-400 font-medium hover:text-violet-300 transition-colors">
           ← Alışkanlıklara dön
         </Link>
       </div>
@@ -104,97 +132,132 @@ export default function HabitDetail() {
   }
 
   const barData = buildBarData()
+  const color = habit.color || '#8B5CF6'
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Link to="/habits" className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+          <Link
+            to="/habits"
+            className="p-2 text-slate-500 rounded-xl transition-all hover:text-slate-200"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <ChevronLeft className="w-5 h-5" />
           </Link>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <div
-                className="w-4 h-4 rounded-full flex-shrink-0"
-                style={{ backgroundColor: habit.color || '#0B735F' }}
+                className="w-3.5 h-3.5 rounded-full flex-shrink-0"
+                style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}80` }}
               />
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{habit.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-white font-display">{habit.title}</h1>
             </div>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-sm text-gray-500">{FREQ_LABELS[habit.frequency] || habit.frequency}</span>
+            <div className="flex items-center gap-2 mt-0.5 ml-6">
+              <span className="text-sm text-slate-500">{FREQ_LABELS[habit.frequency] || habit.frequency}</span>
               {habit.description && (
                 <>
-                  <span className="text-gray-300">·</span>
-                  <span className="text-sm text-gray-400 truncate max-w-xs">{habit.description}</span>
+                  <span className="text-slate-700">·</span>
+                  <span className="text-sm text-slate-600 truncate max-w-xs">{habit.description}</span>
                 </>
               )}
             </div>
           </div>
         </div>
 
-        <div className="flex gap-2 ml-8 sm:ml-0">
-          <button
+        <div className="flex gap-2 ml-10 sm:ml-0">
+          <motion.button
             onClick={() => setShowEdit(true)}
-            className="px-4 py-1.5 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold rounded-xl text-slate-300 transition-all"
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+            whileHover={{ scale: 1.03, background: 'rgba(255,255,255,0.09)' }}
+            whileTap={{ scale: 0.97 }}
           >
+            <Pencil className="w-3.5 h-3.5" />
             Düzenle
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={handleDelete}
-            className="px-4 py-1.5 text-sm border border-red-200 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold rounded-xl text-red-400 transition-all"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}
+            whileHover={{ scale: 1.03, background: 'rgba(239,68,68,0.14)' }}
+            whileTap={{ scale: 0.97 }}
           >
+            <Trash2 className="w-3.5 h-3.5" />
             Sil
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard label="Mevcut Seri" value={analytics?.currentStreak ?? 0} unit="gün" color="#F59E0B" />
-        <StatCard label="En İyi Seri" value={analytics?.bestStreak ?? 0} unit="gün" color="#1D9E75" />
-        <StatCard label="Bu Ay" value={`${analytics?.completionRate ?? 0}%`} color="#0B735F" />
-        <StatCard label="Toplam" value={analytics?.completedDays ?? 0} unit="gün" color="#3B82F6" />
-      </div>
+      <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard label="Mevcut Seri" value={analytics?.currentStreak ?? 0} unit="gün" icon={Flame} color="#F59E0B" />
+        <StatCard label="En İyi Seri" value={analytics?.bestStreak ?? 0} unit="gün" icon={Star} color="#10B981" />
+        <StatCard label="Bu Ay" value={`${analytics?.completionRate ?? 0}%`} icon={TrendingUp} color="#8B5CF6" />
+        <StatCard label="Toplam" value={analytics?.completedDays ?? 0} unit="gün" icon={Calendar} color="#06B6D4" />
+      </motion.div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <motion.div variants={containerVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Heatmap */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">Son 90 Gün</h2>
+        <motion.div
+          variants={itemVariants}
+          className="rounded-2xl p-5"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
+          <h2 className="text-sm font-bold text-slate-200 mb-4">Son 90 Gün</h2>
           <HeatmapGrid dates={checkinDates} days={90} />
-        </div>
+        </motion.div>
 
-        {/* Bar chart last 28 days */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">Son 28 Gün</h2>
+        {/* Bar chart */}
+        <motion.div
+          variants={itemVariants}
+          className="rounded-2xl p-5"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
+          <h2 className="text-sm font-bold text-slate-200 mb-4">Son 28 Gün</h2>
           <ResponsiveContainer width="100%" height={168}>
-            <BarChart data={barData} barSize={12} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
+            <BarChart data={barData} barSize={10} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
               <XAxis
                 dataKey="label"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 10, fill: '#9CA3AF' }}
+                tick={{ fontSize: 10, fill: '#475569' }}
                 interval={6}
               />
               <YAxis hide domain={[0, 1]} />
               <Tooltip
-                cursor={{ fill: '#F3F4F6' }}
+                cursor={{ fill: 'rgba(255,255,255,0.03)' }}
                 labelFormatter={(_, payload) => payload?.[0]?.payload?.date ?? ''}
                 formatter={(v) => [v === 1 ? 'Tamamlandı ✓' : 'Tamamlanmadı', '']}
-                contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E5E7EB', boxShadow: 'none' }}
+                contentStyle={DARK_TOOLTIP}
               />
               <Bar dataKey="done" radius={[3, 3, 0, 0]}>
                 {barData.map((entry, i) => (
-                  <Cell key={i} fill={entry.done === 1 ? (habit.color || '#0B735F') : '#E3DBA9'} />
+                  <Cell
+                    key={i}
+                    fill={entry.done === 1 ? color : 'rgba(255,255,255,0.06)'}
+                  />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {showEdit && (
         <HabitForm
@@ -204,6 +267,6 @@ export default function HabitDetail() {
           loading={editLoading}
         />
       )}
-    </div>
+    </motion.div>
   )
 }

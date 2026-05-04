@@ -1,27 +1,14 @@
 import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { motion, AnimatePresence } from 'framer-motion'
+import { LayoutDashboard, Target, BarChart2, Zap, LogOut, Menu, X } from 'lucide-react'
 
 const NAV = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/habits', label: 'Alışkanlıklar' },
-  { to: '/analytics', label: 'Analitik' },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/habits', label: 'Alışkanlıklar', icon: Target },
+  { to: '/analytics', label: 'Analitik', icon: BarChart2 },
 ]
-
-function Icon({ name, className = 'w-5 h-5' }) {
-  const paths = {
-    menu: 'M4 6h16M4 12h16M4 18h16',
-    close: 'M6 18 18 6M6 6l12 12',
-    logout: 'M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5M14 21h5a2 2 0 0 0 2-2',
-    spark: 'M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3Z',
-  }
-
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d={paths[name]} />
-    </svg>
-  )
-}
 
 export default function Navbar() {
   const { user, logout } = useAuth()
@@ -33,75 +20,158 @@ export default function Navbar() {
     navigate('/login')
   }
 
-  const linkClass = ({ isActive }) =>
-    `rounded-lg px-3 py-2 text-sm font-bold transition ${
-      isActive ? 'bg-[#0B735F] text-white shadow-lg shadow-[#0B735F]/18' : 'text-[#384166] hover:bg-[#E3DBA9]/45 hover:text-[#0B735F]'
-    }`
+  const initial = user?.name?.[0]?.toUpperCase() ?? '?'
 
   return (
-    <nav className="sticky top-0 z-30 border-b border-white/70 bg-[#F8F6E8]/82 backdrop-blur-xl">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          <Link to="/dashboard" className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-lg bg-[#0B735F] text-[#0CDC2A] shadow-lg shadow-[#0B735F]/20">
-              <Icon name="spark" className="h-5 w-5" />
-            </span>
-            <span className="text-lg font-black tracking-tight text-[#0B735F]">Streakly</span>
-          </Link>
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-40"
+        style={{
+          background: 'rgba(6, 6, 15, 0.75)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
 
-          <div className="hidden items-center rounded-lg border border-[#639D75]/20 bg-white/72 p-1 shadow-sm sm:flex">
-            {NAV.map(({ to, label }) => (
-              <NavLink key={to} to={to} className={linkClass}>
-                {label}
-              </NavLink>
-            ))}
-          </div>
+            {/* Logo */}
+            <NavLink to="/dashboard" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:shadow-[0_0_18px_rgba(139,92,246,0.55)]"
+                style={{ background: 'linear-gradient(135deg, #7C3AED, #6D28D9)' }}
+              >
+                <Zap className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-lg font-bold font-display" style={{
+                background: 'linear-gradient(135deg, #A78BFA, #818CF8)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                Streakly
+              </span>
+            </NavLink>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden items-center gap-3 sm:flex">
-              <div className="min-w-0 text-right">
-                <div className="max-w-[150px] truncate text-sm font-black text-[#384166]">{user?.name}</div>
-                <div className="text-xs font-medium text-[#639D75]">aktif oturum</div>
+            {/* Desktop Nav */}
+            <div className="hidden sm:flex items-center gap-1">
+              {NAV.map(({ to, label, icon: Icon }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      isActive
+                        ? 'text-violet-300'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`
+                  }
+                  style={({ isActive }) => isActive ? {
+                    background: 'rgba(139,92,246,0.12)',
+                    boxShadow: '0 0 0 1px rgba(139,92,246,0.28)',
+                  } : {}}
+                >
+                  {({ isActive }) => (
+                    <>
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-violet-400' : ''}`} />
+                      {label}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </div>
+
+            {/* User section */}
+            <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl"
+                style={{ background: 'rgba(255,255,255,0.04)' }}
+              >
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-violet-300"
+                  style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(6,182,212,0.2))' }}
+                >
+                  {initial}
+                </div>
+                <span className="text-sm text-slate-400 max-w-[90px] truncate">{user?.name}</span>
               </div>
               <button
                 onClick={handleLogout}
-                className="grid h-10 w-10 place-items-center rounded-lg border border-[#639D75]/20 bg-white text-[#639D75] transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-                aria-label="Çıkış yap"
+                className="p-2 text-slate-500 rounded-lg transition-all duration-200 hover:text-red-400"
+                style={{ ':hover': { background: 'rgba(239,68,68,0.1)' } }}
+                title="Çıkış Yap"
               >
-                <Icon name="logout" className="h-5 w-5" />
+                <LogOut className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Mobile hamburger */}
             <button
               onClick={() => setOpen(!open)}
-              className="grid h-10 w-10 place-items-center rounded-lg border border-[#639D75]/20 bg-white text-[#0B735F] sm:hidden"
-              aria-label="Menü"
+              className="sm:hidden p-2 text-slate-400 hover:text-slate-200 rounded-lg transition-all"
+              style={{ ':hover': { background: 'rgba(255,255,255,0.06)' } }}
             >
-              <Icon name={open ? 'close' : 'menu'} className="h-5 w-5" />
+              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
+      </nav>
 
+      {/* Mobile menu */}
+      <AnimatePresence>
         {open && (
-          <div className="sm:hidden pb-4">
-            <div className="space-y-1 rounded-lg border border-[#639D75]/20 bg-white p-2 shadow-xl">
-              {NAV.map(({ to, label }) => (
+          <motion.div
+            className="fixed top-16 left-0 right-0 z-30 sm:hidden"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: 'rgba(14,14,26,0.97)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+            }}
+          >
+            <div className="max-w-6xl mx-auto px-4 py-3 space-y-1">
+              {NAV.map(({ to, label, icon: Icon }) => (
                 <NavLink
                   key={to}
                   to={to}
                   onClick={() => setOpen(false)}
-                  className={({ isActive }) => `${linkClass({ isActive })} block`}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all ${
+                      isActive ? 'text-violet-300' : 'text-slate-400 hover:text-slate-200'
+                    }`
+                  }
+                  style={({ isActive }) => isActive ? { background: 'rgba(139,92,246,0.12)' } : {}}
                 >
-                  {label}
+                  {({ isActive }) => (
+                    <>
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-violet-400' : ''}`} />
+                      {label}
+                    </>
+                  )}
                 </NavLink>
               ))}
-              <button onClick={handleLogout} className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-bold text-red-600 hover:bg-red-50">
-                Çıkış yap
-                <Icon name="logout" className="h-4 w-4" />
-              </button>
+              <div className="flex items-center justify-between px-3 py-3 mt-1 border-t border-white/[0.06]">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-violet-300"
+                    style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(6,182,212,0.2))' }}
+                  >
+                    {initial}
+                  </div>
+                  <span className="text-sm text-slate-400">{user?.name}</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-300 transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Çıkış
+                </button>
+              </div>
             </div>
-          </div>
+          </motion.div>
         )}
-      </div>
-    </nav>
+      </AnimatePresence>
+    </>
   )
 }

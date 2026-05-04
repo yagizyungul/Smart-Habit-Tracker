@@ -1,9 +1,11 @@
-const LEVEL_CLASSES = [
-  'bg-[#E3DBA9]/35 border-[#E3DBA9]',
-  'bg-[#E3DBA9] border-[#E3DBA9]',
-  'bg-[#639D75] border-[#639D75]',
-  'bg-[#0B735F] border-[#0B735F]',
-  'bg-[#0CDC2A] border-[#0CDC2A]',
+import { useState } from 'react'
+
+const LEVELS = [
+  { bg: 'rgba(255,255,255,0.04)', glow: 'transparent' },
+  { bg: 'rgba(139,92,246,0.2)', glow: 'rgba(139,92,246,0.1)' },
+  { bg: 'rgba(139,92,246,0.42)', glow: 'rgba(139,92,246,0.2)' },
+  { bg: 'rgba(139,92,246,0.68)', glow: 'rgba(139,92,246,0.35)' },
+  { bg: 'rgba(139,92,246,0.92)', glow: 'rgba(139,92,246,0.5)' },
 ]
 
 function intensityLevel(pct) {
@@ -15,6 +17,7 @@ function intensityLevel(pct) {
 }
 
 export default function HeatmapGrid({ dates = null, data = null, days = 90 }) {
+  const [tooltip, setTooltip] = useState(null)
   const cells = []
   const today = new Date()
 
@@ -31,25 +34,57 @@ export default function HeatmapGrid({ dates = null, data = null, days = 90 }) {
   }
 
   return (
-    <div>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(18px,1fr))] gap-2">
+    <div className="relative">
+      <div className="flex flex-wrap gap-[3px]">
         {cells.map(({ date, level, pct }) => (
           <div
             key={date}
-            title={`${new Date(date).toLocaleDateString('tr-TR')} - ${pct ?? 0}%`}
-            className={`h-8 min-w-[18px] rounded-xl border shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${LEVEL_CLASSES[level]}`}
+            className="w-3.5 h-3.5 rounded-sm cursor-pointer transition-transform hover:scale-125 relative"
+            style={{
+              backgroundColor: LEVELS[level].bg,
+              boxShadow: level > 0 ? `0 0 6px ${LEVELS[level].glow}` : 'none',
+            }}
+            onMouseEnter={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect()
+              setTooltip({ date, pct, x: rect.left, y: rect.top })
+            }}
+            onMouseLeave={() => setTooltip(null)}
           />
         ))}
       </div>
-      <div className="mt-4 flex items-center justify-between gap-3 text-xs font-bold text-[#639D75]">
-        <span>Az</span>
-        <div className="flex items-center gap-1.5">
-          {LEVEL_CLASSES.map((cls) => (
-            <div key={cls} className={`h-4 w-4 rounded-lg border ${cls}`} />
-          ))}
-        </div>
-        <span>Çok</span>
+
+      {/* Legend */}
+      <div className="flex items-center gap-2 mt-3">
+        <span className="text-[10px] text-slate-600 font-medium">Az</span>
+        {LEVELS.map((l, i) => (
+          <div
+            key={i}
+            className="w-3.5 h-3.5 rounded-sm"
+            style={{ backgroundColor: l.bg }}
+          />
+        ))}
+        <span className="text-[10px] text-slate-600 font-medium">Çok</span>
       </div>
+
+      {/* Floating tooltip */}
+      {tooltip && (
+        <div
+          className="fixed z-50 pointer-events-none px-2.5 py-1.5 rounded-lg text-xs text-slate-200 whitespace-nowrap"
+          style={{
+            background: 'rgba(14,14,26,0.95)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+            top: tooltip.y - 40,
+            left: tooltip.x,
+            transform: 'translateX(-30%)',
+          }}
+        >
+          <span className="text-slate-400">{tooltip.date}</span>
+          {tooltip.pct > 0 && (
+            <span className="ml-1.5 font-semibold text-violet-400">{tooltip.pct}%</span>
+          )}
+        </div>
+      )}
     </div>
   )
 }
