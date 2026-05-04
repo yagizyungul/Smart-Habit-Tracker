@@ -169,11 +169,15 @@ export default function VoiceCoach() {
                       {m.role === 'user' ? <UserIcon className="w-4 h-4 text-glow-mint" /> : <Bot className="w-4 h-4 text-slate-400" />}
                     </div>
                     <div
-                      className={`rounded-2xl px-5 py-3 text-sm leading-relaxed ${
+                      className={`rounded-2xl px-5 py-3.5 text-sm leading-relaxed font-medium ${
                         m.role === 'user'
-                          ? 'bg-accent-green/20 text-glow-mint border border-accent-green/20'
-                          : 'bg-white/5 text-slate-300 border border-white/5'
+                          ? 'text-[#124170] border border-accent-green/30'
+                          : 'text-slate-100 border border-white/8'
                       }`}
+                      style={m.role === 'user'
+                        ? { background: 'linear-gradient(135deg, #AAFFC7, #67C090)' }
+                        : { background: 'rgba(255,255,255,0.07)' }
+                      }
                     >
                       {m.content}
                     </div>
@@ -182,12 +186,15 @@ export default function VoiceCoach() {
               ))}
               {loading && (
                 <div className="flex justify-start">
-                  <div className="rounded-2xl px-4 py-3 text-sm" style={{ background: '#f1f0ff', borderBottomLeftRadius: '4px' }}>
-                    <span className="flex gap-1">
-                      <span className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </span>
+                  <div className="flex gap-3 max-w-[85%]">
+                    <div className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center bg-white/5 border border-white/10">
+                      <Bot className="w-4 h-4 text-slate-400" />
+                    </div>
+                    <div className="rounded-2xl px-5 py-4 bg-white/5 border border-white/5 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-accent-green animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-accent-green animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-accent-green animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
                   </div>
                 </div>
               )}
@@ -198,13 +205,15 @@ export default function VoiceCoach() {
             {messages.length <= 1 && (
               <div className="px-6 pb-4 flex flex-wrap gap-2">
                 {quickQuestions.map((q) => (
-                  <button
+                  <motion.button
                     key={q}
                     onClick={() => sendMessage(q)}
-                    className="text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-xl border border-white/10 text-slate-400 transition-all hover:bg-white/5 hover:text-white"
+                    className="text-xs font-semibold px-4 py-2 rounded-xl border border-accent-green/25 text-glow-mint/70 transition-all hover:bg-accent-green/10 hover:text-glow-mint hover:border-accent-green/50"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
                   >
                     {q}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             )}
