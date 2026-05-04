@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
+import VoiceCoach from '../VoiceCoach'
 
 export default function AppLayout() {
   return (
@@ -25,6 +26,8 @@ export default function AppLayout() {
       <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         <Outlet />
       </main>
+
+      <VoiceCoach />
     </div>
   )
 }

@@ -9,6 +9,7 @@ const authRoutes = require('./src/routes/auth');
 const habitRoutes = require('./src/routes/habits');
 const checkinRoutes = require('./src/routes/checkins');
 const analyticsRoutes = require('./src/routes/analytics');
+const aiRoutes = require('./src/routes/ai');
 const { errorHandler, notFound } = require('./src/middleware/errorHandler');
 const { loginLimiter, generalLimiter } = require('./src/middleware/rateLimiter');
 const { startReminderScheduler } = require('./src/services/emailReminder');
@@ -42,6 +43,7 @@ app.use('/api/auth', loginLimiter, authRoutes);
 app.use('/api/habits', habitRoutes);
 app.use('/api/checkins', checkinRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
