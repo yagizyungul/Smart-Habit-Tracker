@@ -115,7 +115,8 @@
   }
 
   .input-dark:focus {
-    @apply bg-white/10 border-accent-green/50;
+    @apply bg-white/10;
+    border-color: rgba(103, 192, 144, 0.5);
     box-shadow: 0 0 0 4px rgba(103, 192, 144, 0.1);
   }
 
