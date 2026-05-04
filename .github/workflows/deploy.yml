@@ -15,7 +15,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "name": "smart-habit-tracker",
+              "name": "streakly-smart-habit-tracker-app",
               "ref": "main"
             }'
         continue-on-error: true
