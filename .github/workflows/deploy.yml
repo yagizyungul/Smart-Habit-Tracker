@@ -6,11 +6,20 @@ on:
       - main
 
 jobs:
-  trigger-render-deploy:
+  trigger-deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Trigger Vercel deployment
+        run: |
+          curl -X POST "https://api.vercel.com/v1/integrations/github/deploy" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "smart-habit-tracker",
+              "ref": "main"
+            }'
+        continue-on-error: true
+
       - name: Trigger Render deployment
         run: curl --fail --request POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
-
-      - name: Trigger Vercel deployment
-        run: curl --fail --request POST "${{ secrets.VERCEL_TOKEN }}"
+        continue-on-error: true
