@@ -63,11 +63,18 @@ export default function VoiceCoach() {
       const { data } = await api.post('/api/ai/chat', { message: text, history })
       const assistantMsg = { role: 'assistant', content: data.reply }
       setMessages((prev) => [...prev, assistantMsg])
-      // Sesi kapatma isteği üzerine otomatik okumayı kaldırdık
-      // setSpeaking(true)
-      // speak(data.reply, () => setSpeaking(false))
-    } catch {
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Bir hata oluştu, tekrar dener misin?' }])
+    } catch (err) {
+      const status = err?.response?.status
+      if (status === 429) {
+        setMessages((prev) => [...prev, {
+          role: 'assistant',
+          content: '⏳ Çok fazla istek gönderildi. Gemini AI sınırına ulaşıldı. 15 saniye bekleyip tekrar dene.'
+        }])
+        // 15 saniye boyunca input'u kilitli tut
+        await new Promise((r) => setTimeout(r, 15000))
+      } else {
+        setMessages((prev) => [...prev, { role: 'assistant', content: 'Bir hata oluştu, tekrar dener misin?' }])
+      }
     } finally {
       setLoading(false)
     }
