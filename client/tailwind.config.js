@@ -4,6 +4,10 @@ export default {
   theme: {
     extend: {
       colors: {
+        'accent-green': '#67C090',
+        'glow-mint': '#AAFFC7',
+        'deep-ocean': '#124170',
+        'deep-teal': '#215B63',
         base: '#06060F',
         surface: '#0E0E1A',
         'surface-2': '#141428',
