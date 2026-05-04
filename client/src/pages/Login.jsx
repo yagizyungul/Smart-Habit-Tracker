@@ -14,7 +14,7 @@ function ParticleField() {
       duration: Math.random() * 18 + 10,
       delay: Math.random() * 12,
       opacity: Math.random() * 0.45 + 0.1,
-      color: i % 3 === 0 ? '6,182,212' : i % 3 === 1 ? '139,92,246' : '16,185,129',
+      color: i % 2 === 0 ? '103,192,144' : '170,255,199',
     })), []
   )
   return (
@@ -38,9 +38,9 @@ function ParticleField() {
 }
 
 const STATS = [
-  { icon: Target, label: 'Aktif Alışkanlık', value: '2.4K+', color: '#8B5CF6' },
-  { icon: TrendingUp, label: 'Tamamlanma', value: '%89', color: '#06B6D4' },
-  { icon: Flame, label: 'Ort. Seri', value: '21 gün', color: '#F59E0B' },
+  { icon: Target, label: 'Aktif Kullanıcı', value: '12K+', color: '#AAFFC7' },
+  { icon: TrendingUp, label: 'Başarı Oranı', value: '%94', color: '#67C090' },
+  { icon: Flame, label: 'En İyi Seri', value: '45 Gün', color: '#AAFFC7' },
 ]
 
 const containerVariants = {
@@ -77,10 +77,10 @@ export default function Login() {
     <div className="min-h-screen bg-base flex overflow-hidden relative">
       {/* Background orbs */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-60 -right-60 w-[700px] h-[700px] rounded-full animate-float-slow"
-          style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%)' }} />
-        <div className="absolute -bottom-60 -left-60 w-[600px] h-[600px] rounded-full animate-float-slower"
-          style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.05) 0%, transparent 70%)' }} />
+        <div className="absolute -top-60 -right-60 w-[700px] h-[700px] rounded-full animate-float"
+          style={{ background: 'radial-gradient(circle, rgba(170,255,199,0.06) 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-60 -left-60 w-[600px] h-[600px] rounded-full animate-float"
+          style={{ background: 'radial-gradient(circle, rgba(103,192,144,0.04) 0%, transparent 70%)' }} />
       </div>
 
       {/* Left decorative panel */}
@@ -93,12 +93,12 @@ export default function Login() {
         <ParticleField />
 
         {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-neon-purple"
-            style={{ background: 'linear-gradient(135deg, #7C3AED, #6D28D9)' }}>
-            <Zap className="w-5 h-5 text-white" />
+        <div className="flex items-center gap-4">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(170,255,199,0.2)]"
+            style={{ background: 'linear-gradient(135deg, #67C090, #AAFFC7)' }}>
+            <Zap className="w-6 h-6 text-[#124170]" />
           </div>
-          <span className="text-2xl font-bold font-display gradient-text">Streakly</span>
+          <span className="text-2xl font-black text-white text-glow">Streakly</span>
         </div>
 
         {/* Main copy */}
@@ -106,10 +106,10 @@ export default function Login() {
           <div>
             <motion.h1
               variants={itemVariants}
-              className="text-5xl font-bold text-white leading-tight mb-4 font-display"
+              className="text-6xl font-black text-white leading-tight mb-6"
             >
-              Alışkanlıklarını<br />
-              <span className="gradient-text">Dönüştür.</span>
+              Potansiyelini<br />
+              <span className="text-glow-mint">Açığa Çıkar.</span>
             </motion.h1>
             <motion.p variants={itemVariants} className="text-slate-400 text-lg leading-relaxed max-w-sm">
               Hedeflerine ulaşmak için akıllı takip, derin analizler ve sürekli motivasyon.
@@ -149,25 +149,23 @@ export default function Login() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <motion.div
-            className="flex items-center gap-3 mb-8 lg:hidden"
+            className="flex items-center gap-4 mb-10 lg:hidden"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #7C3AED, #6D28D9)' }}>
-              <Zap className="w-4.5 h-4.5 text-white" />
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #67C090, #AAFFC7)' }}>
+              <Zap className="w-6 h-6 text-[#124170]" />
             </div>
-            <span className="text-xl font-bold font-display gradient-text">Streakly</span>
+            <span className="text-2xl font-black text-white text-glow">Streakly</span>
           </motion.div>
 
           <motion.div
-            className="neon-border rounded-2xl p-8"
+            className="glass-card p-10 relative overflow-hidden"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: '0 8px 48px rgba(0,0,0,0.55)',
+              background: 'rgba(33, 91, 99, 0.4)',
+              boxShadow: '0 20px 80px rgba(0,0,0,0.5)',
             }}
             initial={{ opacity: 0, scale: 0.97, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -239,9 +237,9 @@ export default function Login() {
               </motion.button>
             </form>
 
-            <p className="text-center text-slate-500 text-sm mt-6">
+            <p className="text-center text-slate-500 text-sm mt-8">
               Hesabın yok mu?{' '}
-              <Link to="/register" className="text-violet-400 hover:text-violet-300 font-medium transition-colors">
+              <Link to="/register" className="text-glow-mint hover:text-white font-bold transition-all duration-300">
                 Kayıt Ol
               </Link>
             </p>

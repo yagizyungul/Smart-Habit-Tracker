@@ -10,14 +10,14 @@ import { useAuth } from '../context/AuthContext'
 import { useDataCache, CACHE_KEYS } from '../context/DataCacheContext'
 
 const DARK_TOOLTIP = {
-  background: 'rgba(14,14,26,0.95)',
+  background: 'rgba(18, 65, 112, 0.9)',
   backdropFilter: 'blur(12px)',
-  border: '1px solid rgba(255,255,255,0.08)',
-  borderRadius: '12px',
-  fontSize: '12px',
-  color: '#E2E8F0',
-  boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-  padding: '8px 12px',
+  border: '1px solid rgba(170, 255, 199, 0.2)',
+  borderRadius: '16px',
+  fontSize: '13px',
+  color: '#F8FAFC',
+  boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+  padding: '12px 16px',
 }
 
 const containerVariants = {
@@ -29,33 +29,30 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
 }
 
-function StatCard({ label, value, sub, icon: Icon, color, gradient }) {
+function StatCard({ label, value, sub, icon: Icon, color }) {
   return (
     <motion.div
       variants={itemVariants}
-      className="relative rounded-2xl p-5 overflow-hidden"
-      style={{
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-      }}
-      whileHover={{ y: -3, transition: { duration: 0.2 } }}
+      className="glass-card glass-card-hover relative p-6 overflow-hidden"
     >
-      {/* Gradient corner accent */}
-      <div className="absolute top-0 right-0 w-28 h-28 rounded-bl-full opacity-[0.07] pointer-events-none"
-        style={{ background: gradient }} />
+      {/* Glow effect */}
+      <div 
+        className="absolute -top-10 -right-10 w-24 h-24 blur-3xl opacity-20"
+        style={{ background: color }} 
+      />
 
-      <div className="flex items-start justify-between mb-3">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{ background: `${color}18` }}>
-          <Icon className="w-4.5 h-4.5" style={{ color }} />
+      <div className="flex items-start justify-between mb-4">
+        <div 
+          className="w-11 h-11 rounded-xl flex items-center justify-center"
+          style={{ background: `${color}15`, border: `1px solid ${color}30` }}
+        >
+          <Icon className="w-5 h-5" style={{ color }} />
         </div>
       </div>
 
-      <div className="stat-number text-2xl mb-0.5" style={{ color }}>{value}</div>
-      <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{label}</div>
-      {sub && <div className="text-xs text-slate-600 mt-0.5 truncate">{sub}</div>}
+      <div className="stat-number text-3xl mb-1 text-glow" style={{ color }}>{value}</div>
+      <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">{label}</div>
+      {sub && <div className="text-[11px] text-slate-500 mt-1 font-medium italic">{sub}</div>}
     </motion.div>
   )
 }
@@ -172,38 +169,34 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Stat cards */}
-      <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Bugün"
           value={`${completedToday}/${totalToday}`}
           sub={`${pct}% tamamlandı`}
           icon={Check}
-          color="#10B981"
-          gradient="linear-gradient(135deg, #10B981, #059669)"
+          color="#AAFFC7"
         />
         <StatCard
           label="En Uzun Seri"
           value={`${analytics?.bestStreak?.streak ?? 0} gün`}
           sub={analytics?.bestStreak?.habitTitle || '—'}
           icon={Flame}
-          color="#F59E0B"
-          gradient="linear-gradient(135deg, #F59E0B, #D97706)"
+          color="#67C090"
         />
         <StatCard
           label="Bu Ay"
           value={`${analytics?.monthlyCompletion ?? 0}%`}
           sub="tamamlanma oranı"
           icon={TrendingUp}
-          color="#8B5CF6"
-          gradient="linear-gradient(135deg, #8B5CF6, #7C3AED)"
+          color="#AAFFC7"
         />
         <StatCard
           label="Mükemmel Gün"
           value={analytics?.perfectDays ?? 0}
           sub="son 30 günde"
           icon={Star}
-          color="#06B6D4"
-          gradient="linear-gradient(135deg, #06B6D4, #0891B2)"
+          color="#67C090"
         />
       </motion.div>
 
@@ -220,25 +213,25 @@ export default function Dashboard() {
             backdropFilter: 'blur(12px)',
           }}
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-sm font-bold text-slate-200">Bugünkü Alışkanlıklar</h2>
+              <h2 className="text-base font-bold text-slate-100">Bugünkü Alışkanlıklar</h2>
               {totalToday > 0 && (
-                <p className="text-xs text-slate-600 mt-0.5">{completedToday}/{totalToday} tamamlandı</p>
+                <p className="text-xs text-slate-500 mt-1">{completedToday}/{totalToday} tamamlandı</p>
               )}
             </div>
             {totalToday > 0 && (
-              <div className="flex items-center gap-1.5">
-                <div className="w-24 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-28 h-2 rounded-full overflow-hidden bg-white/5">
                   <motion.div
                     className="h-full rounded-full"
-                    style={{ background: 'linear-gradient(to right, #8B5CF6, #06B6D4)' }}
+                    style={{ background: 'linear-gradient(to right, #67C090, #AAFFC7)' }}
                     initial={{ width: 0 }}
                     animate={{ width: `${pct}%` }}
-                    transition={{ duration: 1, ease: 'easeOut' }}
+                    transition={{ duration: 1.2, ease: 'easeOut' }}
                   />
                 </div>
-                <span className="text-xs font-bold text-violet-400">{pct}%</span>
+                <span className="text-sm font-bold text-glow-mint">{pct}%</span>
               </div>
             )}
           </div>
@@ -327,20 +320,20 @@ export default function Dashboard() {
                   formatter={(v) => [`${v}%`, 'Tamamlanma']}
                   contentStyle={DARK_TOOLTIP}
                 />
-                <Bar dataKey="pct" radius={[6, 6, 0, 0]}>
+                <Bar dataKey="pct" radius={[8, 8, 0, 0]}>
                   {analytics.weeklyData.map((entry, i) => (
                     <Cell
                       key={i}
                       fill={i === analytics.weeklyData.length - 1
                         ? 'url(#barGrad)'
-                        : 'rgba(139,92,246,0.22)'}
+                        : 'rgba(103, 192, 144, 0.25)'}
                     />
                   ))}
                 </Bar>
                 <defs>
                   <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#A78BFA" />
-                    <stop offset="100%" stopColor="#7C3AED" />
+                    <stop offset="0%" stopColor="#AAFFC7" />
+                    <stop offset="100%" stopColor="#67C090" />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -354,14 +347,9 @@ export default function Dashboard() {
       {/* Heatmap */}
       <motion.div
         variants={itemVariants}
-        className="rounded-2xl p-5"
-        style={{
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          backdropFilter: 'blur(12px)',
-        }}
+        className="glass-card p-6"
       >
-        <h2 className="text-sm font-bold text-slate-200 mb-4">Son 30 Gün — Aktivite Haritası</h2>
+        <h2 className="text-base font-bold text-slate-100 mb-6">Son 30 Gün — Aktivite Haritası</h2>
         <HeatmapGrid data={overviewData?.dailyLast30 ?? []} />
       </motion.div>
     </motion.div>

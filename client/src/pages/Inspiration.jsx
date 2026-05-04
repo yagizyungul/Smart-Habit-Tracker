@@ -62,111 +62,124 @@ export default function Inspiration() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <motion.div variants={itemVariants} className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: '#1a1a2e' }}>
-            {tr ? '✨ İlham Merkezi' : '✨ Inspiration Hub'}
+          <h1 className="text-3xl font-black text-white text-glow">
+            {tr ? 'İlham Merkezi' : 'Inspiration Hub'}
           </h1>
-          <p className="text-sm mt-1" style={{ color: '#64748b' }}>
+          <p className="text-sm text-slate-400 mt-1">
             {tr ? 'Kitaplar, sözler ve odaklanma müziği' : 'Books, quotes and focus music'}
           </p>
         </div>
-        {/* Language Toggle */}
-        <button
+        <motion.button
           onClick={() => setLang(lang === 'tr' ? 'en' : 'tr')}
-          className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all border"
-          style={{ borderColor: '#7F77DD', color: '#7F77DD', background: '#f1f0ff' }}
+          className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-300 bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          {lang === 'tr' ? '🇹🇷 TR' : '🇬🇧 EN'}
-          <span style={{ color: '#aaa' }}>→</span>
-          {lang === 'tr' ? '🇬🇧 EN' : '🇹🇷 TR'}
-        </button>
-      </div>
+          {lang === 'tr' ? 'TR 🇹🇷' : 'EN 🇬🇧'}
+        </motion.button>
+      </motion.div>
 
       {/* Quote Card */}
-      <div className="rounded-2xl p-6 text-white relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #7F77DD, #5B52C7)' }}>
-        <div className="absolute top-0 right-0 text-9xl opacity-10 select-none leading-none">❝</div>
-        <p className="text-lg font-medium leading-relaxed mb-3 relative z-10">"{quotes[quoteIdx].q}"</p>
-        <p className="text-white/70 text-sm relative z-10">— {quotes[quoteIdx].a}</p>
-        <div className="flex gap-1.5 mt-4">
+      <motion.div 
+        variants={itemVariants}
+        className="glass-card p-8 text-white relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #215B63, #124170)' }}
+      >
+        <div className="absolute top-0 right-0 text-[180px] opacity-10 select-none leading-none -translate-y-12">❝</div>
+        <p className="text-2xl font-bold leading-relaxed mb-4 relative z-10 text-glow">"{quotes[quoteIdx].q}"</p>
+        <p className="text-slate-300 text-sm font-bold uppercase tracking-widest relative z-10">— {quotes[quoteIdx].a}</p>
+        <div className="flex gap-2 mt-8">
           {quotes.map((_, i) => (
-            <button key={i} onClick={() => setQuoteIdx(i)} className="w-1.5 h-1.5 rounded-full transition-all" style={{ background: i === quoteIdx ? 'white' : 'rgba(255,255,255,0.3)' }} />
+            <button key={i} onClick={() => setQuoteIdx(i)} className="w-2 h-2 rounded-full transition-all" style={{ background: i === quoteIdx ? '#AAFFC7' : 'rgba(255,255,255,0.1)' }} />
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-xl" style={{ background: '#f1f0ff' }}>
+      <motion.div variants={itemVariants} className="flex gap-2 p-1.5 rounded-2xl bg-white/5 border border-white/5">
         {[
-          { id: 'books', label: tr ? '📚 Kitaplar' : '📚 Books' },
-          { id: 'music', label: tr ? '🎵 Müzik' : '🎵 Music' },
+          { id: 'books', label: tr ? 'Kitaplar' : 'Books', icon: '📚' },
+          { id: 'music', label: tr ? 'Müzik' : 'Music', icon: '🎵' },
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all"
-            style={activeTab === tab.id ? { background: 'white', color: '#7F77DD', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' } : { color: '#64748b' }}
+            className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${
+              activeTab === tab.id 
+                ? 'bg-accent-green/20 text-glow-mint border border-accent-green/30' 
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
           >
+            <span>{tab.icon}</span>
             {tab.label}
           </button>
         ))}
-      </div>
+      </motion.div>
 
       {/* Books */}
       {activeTab === 'books' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+        >
           {BOOKS.map((book, i) => (
             <a key={book.id} href={book.link} target="_blank" rel="noopener noreferrer"
-              className="flex gap-4 p-4 rounded-xl border transition-all hover:shadow-md hover:-translate-y-0.5"
-              style={{ background: 'white', borderColor: '#e2e0f9', textDecoration: 'none' }}
+              className="glass-card p-5 group flex gap-5 transition-all duration-300 hover:-translate-y-1"
             >
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: book.color + '18' }}>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 transition-all duration-300 group-hover:scale-110" style={{ background: book.color + '15' }}>
                 {book.emoji}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-sm leading-tight" style={{ color: '#1a1a2e' }}>{book.title}</p>
-                  <span className="text-xs flex-shrink-0" style={{ color: '#94a3b8' }}>#{i + 1}</span>
+                  <p className="font-bold text-slate-100 group-hover:text-glow-mint transition-colors truncate">{book.title}</p>
+                  <span className="text-[10px] font-black text-slate-700">#{i + 1}</span>
                 </div>
-                <p className="text-xs mt-0.5" style={{ color: book.color }}>{book.author} · {book.year}</p>
-                <p className="text-xs mt-1.5 leading-relaxed" style={{ color: '#64748b' }}>{tr ? book.desc : book.descEn}</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider mt-1" style={{ color: book.color }}>{book.author} · {book.year}</p>
+                <p className="text-xs text-slate-500 mt-2 leading-relaxed line-clamp-2">{tr ? book.desc : book.descEn}</p>
               </div>
             </a>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* Music */}
       {activeTab === 'music' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+        >
           {PLAYLISTS.map((p) => (
             <a key={p.name} href={p.link} target="_blank" rel="noopener noreferrer"
-              className="p-5 rounded-xl border transition-all hover:shadow-md hover:-translate-y-0.5 block"
-              style={{ background: 'white', borderColor: '#e2e0f9', textDecoration: 'none' }}
+              className="glass-card p-6 group transition-all duration-300 hover:-translate-y-1 block"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl" style={{ background: p.color + '18' }}>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform" style={{ background: p.color + '15' }}>
                   {p.emoji}
                 </div>
-                <div>
-                  <p className="font-semibold text-sm" style={{ color: '#1a1a2e' }}>{p.name}</p>
-                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: p.color + '18', color: p.color }}>{p.type}</span>
+                <div className="min-w-0">
+                  <p className="font-bold text-slate-100 group-hover:text-glow-mint transition-colors truncate">{p.name}</p>
+                  <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg inline-block mt-1" style={{ background: p.color + '15', color: p.color }}>{p.type}</span>
                 </div>
               </div>
-              <p className="text-xs leading-relaxed" style={{ color: '#64748b' }}>{tr ? p.desc : p.descEn}</p>
-              <div className="flex items-center justify-between mt-3">
-                <span className="text-xs font-medium" style={{ color: p.color }}>{p.platform}</span>
-                <span className="text-xs" style={{ color: '#94a3b8' }}>→ {tr ? 'Aç' : 'Open'}</span>
+              <p className="text-xs text-slate-500 leading-relaxed mb-4">{tr ? p.desc : p.descEn}</p>
+              <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: p.color }}>{p.platform}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors flex items-center gap-1">
+                  {tr ? 'Şimdi Dinle' : 'Listen Now'} <span className="text-lg">→</span>
+                </span>
               </div>
             </a>
           ))}
-          <div className="p-5 rounded-xl border col-span-full" style={{ background: '#f8f7ff', borderColor: '#e2e0f9', borderStyle: 'dashed' }}>
-            <p className="text-sm text-center" style={{ color: '#94a3b8' }}>
+          <div className="p-6 glass-card border-dashed border-white/10 col-span-full">
+            <p className="text-xs font-bold text-center text-slate-500 uppercase tracking-[0.2em]">
               {tr ? '💡 İpucu: Odak müziği alışkanlık tamamlama oranını %23 artırır.' : '💡 Tip: Focus music increases habit completion rates by 23%.'}
             </p>
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   )

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const HABIT_SUGGESTIONS = [
   { emoji: '🏃', label: 'Spor / Koşu', title: 'Sabah koşusu', frequency: 'daily', color: '#EF4444', targetDays: [0,1,2,3,4,5,6] },
@@ -61,160 +62,176 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #f1f0ff 0%, #e8f5f0 100%)' }}>
-      <div className="w-full max-w-lg">
+    <div className="min-h-screen flex items-center justify-center p-6 sm:p-10 relative overflow-hidden">
+      {/* Background orbs */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-60 -right-60 w-[700px] h-[700px] rounded-full animate-float"
+          style={{ background: 'radial-gradient(circle, rgba(170,255,199,0.06) 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-60 -left-60 w-[600px] h-[600px] rounded-full animate-float"
+          style={{ background: 'radial-gradient(circle, rgba(103,192,144,0.04) 0%, transparent 70%)' }} />
+      </div>
+
+      <div className="w-full max-w-xl relative z-10">
 
         {/* Progress */}
-        <div className="flex items-center justify-center gap-2 mb-8">
+        <div className="flex items-center justify-center gap-2 mb-12">
           {STEPS.map((s, i) => (
             <div key={s} className="flex items-center gap-2">
               <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all"
-                  style={{ background: i <= step ? '#7F77DD' : '#e2e0f9', color: i <= step ? 'white' : '#94a3b8' }}>
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-black transition-all duration-500 shadow-lg ${
+                  i <= step ? 'bg-accent-green text-[#124170] shadow-accent-green/20' : 'bg-white/5 text-slate-500 border border-white/10'
+                }`}>
                   {i < step ? '✓' : i + 1}
                 </div>
-                <span className="text-xs mt-1 hidden sm:block" style={{ color: i === step ? '#7F77DD' : '#94a3b8' }}>{s}</span>
+                <span className={`text-[10px] font-black uppercase tracking-widest mt-2 hidden sm:block ${i === step ? 'text-glow-mint' : 'text-slate-600'}`}>{s}</span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className="w-8 h-0.5 mb-4" style={{ background: i < step ? '#7F77DD' : '#e2e0f9' }} />
+                <div className={`w-10 h-0.5 rounded-full mb-6 ${i < step ? 'bg-accent-green' : 'bg-white/10'}`} />
               )}
             </div>
           ))}
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-xl p-8">
-
-          {/* Step 0 — Hoşgeldin */}
-          {step === 0 && (
-            <div className="text-center">
-              <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-2xl font-bold mb-2" style={{ color: '#1a1a2e' }}>
-                Hoşgeldin, {user?.name?.split(' ')[0] || 'Streakly'} ailesi!
-              </h2>
-              <p className="mb-6 leading-relaxed" style={{ color: '#64748b' }}>
-                Seni tanımak ve kişiselleştirilmiş bir başlangıç hazırlamak için birkaç hızlı soru soracağız.
-                Sadece <strong>30 saniye</strong> sürecek! 🚀
-              </p>
-              <div className="grid grid-cols-3 gap-3 mb-8 text-center">
-                {[['🎯', 'Hedeflerini', 'belirle'], ['✅', 'Alışkanlıklarını', 'seç'], ['📊', 'Takip etmeye', 'başla']].map(([e, l1, l2]) => (
-                  <div key={l1} className="p-3 rounded-2xl" style={{ background: '#f8f7ff' }}>
-                    <div className="text-2xl mb-1">{e}</div>
-                    <div className="text-xs font-medium" style={{ color: '#7F77DD' }}>{l1}</div>
-                    <div className="text-xs" style={{ color: '#94a3b8' }}>{l2}</div>
-                  </div>
-                ))}
-              </div>
-              <button onClick={() => setStep(1)} className="w-full py-3 rounded-2xl text-white font-semibold text-lg transition-all hover:opacity-90"
-                style={{ background: 'linear-gradient(135deg, #7F77DD, #5B52C7)' }}>
-                Hadi Başlayalım! →
-              </button>
-            </div>
-          )}
-
-          {/* Step 1 — Hedefler */}
-          {step === 1 && (
-            <div>
-              <div className="text-4xl mb-3 text-center">🎯</div>
-              <h2 className="text-xl font-bold text-center mb-1" style={{ color: '#1a1a2e' }}>Ana hedeflerin neler?</h2>
-              <p className="text-sm text-center mb-6" style={{ color: '#64748b' }}>İstediğin kadar seçebilirsin</p>
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                {GOALS.map((g) => (
-                  <button key={g.id} onClick={() => toggleGoal(g.id)}
-                    className="p-4 rounded-2xl border-2 transition-all text-left"
-                    style={{
-                      borderColor: goals.includes(g.id) ? '#7F77DD' : '#e2e0f9',
-                      background: goals.includes(g.id) ? '#f1f0ff' : 'white',
-                    }}>
-                    <div className="text-2xl mb-1">{g.emoji}</div>
-                    <div className="text-sm font-medium" style={{ color: goals.includes(g.id) ? '#7F77DD' : '#1a1a2e' }}>{g.label}</div>
-                    {goals.includes(g.id) && <div className="text-xs mt-1" style={{ color: '#7F77DD' }}>✓ Seçildi</div>}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-3">
-                <button onClick={() => setStep(0)} className="flex-1 py-3 rounded-2xl border font-medium" style={{ borderColor: '#e2e0f9', color: '#64748b' }}>← Geri</button>
-                <button onClick={() => setStep(2)} className="flex-2 px-8 py-3 rounded-2xl text-white font-semibold transition-all hover:opacity-90"
-                  style={{ background: 'linear-gradient(135deg, #7F77DD, #5B52C7)', flex: 2 }}>
-                  Devam Et →
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 2 — Alışkanlıklar */}
-          {step === 2 && (
-            <div>
-              <div className="text-4xl mb-3 text-center">✅</div>
-              <h2 className="text-xl font-bold text-center mb-1" style={{ color: '#1a1a2e' }}>Hangi alışkanlıklarla başlamak istersin?</h2>
-              <p className="text-sm text-center mb-5" style={{ color: '#64748b' }}>Seçtiklerini anında hesabına ekleyeceğiz</p>
-              <div className="grid grid-cols-2 gap-2 mb-6 max-h-72 overflow-y-auto pr-1">
-                {HABIT_SUGGESTIONS.map((h, i) => (
-                  <button key={i} onClick={() => toggleHabit(i)}
-                    className="flex items-center gap-2 p-3 rounded-2xl border-2 transition-all text-left"
-                    style={{
-                      borderColor: selectedHabits.includes(i) ? h.color : '#e2e0f9',
-                      background: selectedHabits.includes(i) ? h.color + '12' : 'white',
-                    }}>
-                    <span className="text-xl">{h.emoji}</span>
-                    <span className="text-xs font-medium flex-1" style={{ color: selectedHabits.includes(i) ? h.color : '#1a1a2e' }}>{h.label}</span>
-                    {selectedHabits.includes(i) && <span className="text-xs" style={{ color: h.color }}>✓</span>}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-center mb-4" style={{ color: '#94a3b8' }}>
-                {selectedHabits.length} alışkanlık seçildi · Sonradan ekleyip çıkarabilirsin
-              </p>
-              <div className="flex gap-3">
-                <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-2xl border font-medium" style={{ borderColor: '#e2e0f9', color: '#64748b' }}>← Geri</button>
-                <button onClick={() => setStep(3)} className="flex-2 px-8 py-3 rounded-2xl text-white font-semibold transition-all hover:opacity-90"
-                  style={{ background: 'linear-gradient(135deg, #7F77DD, #5B52C7)', flex: 2 }}>
-                  Devam Et →
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 3 — Hazır */}
-          {step === 3 && (
-            <div className="text-center">
-              <div className="text-6xl mb-4">🚀</div>
-              <h2 className="text-2xl font-bold mb-2" style={{ color: '#1a1a2e' }}>Her şey hazır!</h2>
-              <p className="mb-6 leading-relaxed" style={{ color: '#64748b' }}>
-                {selectedHabits.length > 0
-                  ? `${selectedHabits.length} alışkanlık seçtin. Bunları hesabına ekliyoruz ve takibe başlıyorsun!`
-                  : 'Dashboard\'una gidip istediğin zaman alışkanlık ekleyebilirsin.'}
-              </p>
-
-              {selectedHabits.length > 0 && (
-                <div className="flex flex-wrap gap-2 justify-center mb-6">
-                  {selectedHabits.map((idx) => (
-                    <span key={idx} className="px-3 py-1.5 rounded-full text-sm font-medium"
-                      style={{ background: HABIT_SUGGESTIONS[idx].color + '18', color: HABIT_SUGGESTIONS[idx].color }}>
-                      {HABIT_SUGGESTIONS[idx].emoji} {HABIT_SUGGESTIONS[idx].label}
-                    </span>
+        <div className="glass-card p-10 overflow-hidden" style={{ background: 'rgba(33, 91, 99, 0.4)', border: '1px solid rgba(170, 255, 199, 0.2)' }}>
+          <AnimatePresence mode="wait">
+            {step === 0 && (
+              <motion.div 
+                key="step0"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="text-center"
+              >
+                <div className="w-20 h-20 rounded-3xl bg-accent-green/10 flex items-center justify-center text-5xl mx-auto mb-8 border border-accent-green/20 animate-float">🎉</div>
+                <h2 className="text-3xl font-black text-white mb-4 text-glow">
+                  Hoşgeldin, {user?.name?.split(' ')[0] || 'Gezgin'}!
+                </h2>
+                <p className="text-slate-400 text-lg leading-relaxed mb-10">
+                  Seni tanımak ve kişiselleştirilmiş bir başlangıç hazırlamak için birkaç hızlı soru soracağız.
+                  Sadece <span className="text-glow-mint font-bold">30 saniye</span> sürecek! 🚀
+                </p>
+                <div className="grid grid-cols-3 gap-4 mb-10 text-center">
+                  {[['🎯', 'Hedef', 'Belirle'], ['✅', 'Alışkanlık', 'Seç'], ['📊', 'Takip', 'Başla']].map(([e, l1, l2]) => (
+                    <div key={l1} className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                      <div className="text-3xl mb-2">{e}</div>
+                      <div className="text-[10px] font-black uppercase tracking-widest text-glow-mint">{l1}</div>
+                      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{l2}</div>
+                    </div>
                   ))}
                 </div>
-              )}
+                <button onClick={() => setStep(1)} className="btn-primary w-full py-4 text-lg">
+                  Hadi Başlayalım! <span className="text-xl ml-2">→</span>
+                </button>
+              </motion.div>
+            )}
 
-              <div className="p-4 rounded-2xl mb-6 text-sm" style={{ background: '#f1f0ff', color: '#7F77DD' }}>
-                💡 AI Coach'un sana her an yardımcı olmak için hazır! Sağ alttaki 🎙️ butonuna tıkla.
-              </div>
+            {step === 1 && (
+              <motion.div 
+                key="step1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
+                <div className="w-16 h-16 rounded-2xl bg-accent-green/10 flex items-center justify-center text-4xl mx-auto mb-6 border border-accent-green/20">🎯</div>
+                <h2 className="text-2xl font-black text-white text-center mb-2">Ana hedeflerin neler?</h2>
+                <p className="text-slate-400 text-center text-sm mb-8">İstediğin kadar seçebilirsin</p>
+                <div className="grid grid-cols-2 gap-4 mb-10">
+                  {GOALS.map((g) => (
+                    <button key={g.id} onClick={() => toggleGoal(g.id)}
+                      className={`p-5 rounded-2xl border-2 transition-all duration-300 text-left relative overflow-hidden group ${
+                        goals.includes(g.id) ? 'border-accent-green bg-accent-green/10 shadow-[0_0_20px_rgba(103,192,144,0.15)]' : 'border-white/5 bg-white/5 hover:border-white/20'
+                      }`}>
+                      <div className="text-3xl mb-2 transition-transform group-hover:scale-110">{g.emoji}</div>
+                      <div className={`text-sm font-black uppercase tracking-widest ${goals.includes(g.id) ? 'text-glow-mint' : 'text-slate-400'}`}>{g.label}</div>
+                      {goals.includes(g.id) && (
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-accent-green flex items-center justify-center">
+                          <span className="text-[10px] text-[#124170] font-black">✓</span>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-4">
+                  <button onClick={() => setStep(0)} className="flex-1 btn-secondary">GERİ</button>
+                  <button onClick={() => setStep(2)} className="flex-[2] btn-primary">DEVAM ET →</button>
+                </div>
+              </motion.div>
+            )}
 
-              <button onClick={finish} disabled={loading}
-                className="w-full py-4 rounded-2xl text-white font-bold text-lg transition-all hover:opacity-90 disabled:opacity-60"
-                style={{ background: 'linear-gradient(135deg, #7F77DD, #5B52C7)' }}>
-                {loading ? '⏳ Yükleniyor...' : '🎯 Dashboard\'a Git!'}
-              </button>
-            </div>
-          )}
+            {step === 2 && (
+              <motion.div 
+                key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
+                <div className="w-16 h-16 rounded-2xl bg-accent-green/10 flex items-center justify-center text-4xl mx-auto mb-6 border border-accent-green/20">✅</div>
+                <h2 className="text-2xl font-black text-white text-center mb-2">Başlangıç alışkanlıkların?</h2>
+                <p className="text-slate-400 text-center text-sm mb-8">Senin için birkaç önerimiz var</p>
+                <div className="grid grid-cols-2 gap-3 mb-8 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+                  {HABIT_SUGGESTIONS.map((h, i) => (
+                    <button key={i} onClick={() => toggleHabit(i)}
+                      className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-300 text-left ${
+                        selectedHabits.includes(i) ? 'border-accent-green bg-accent-green/10' : 'border-white/5 bg-white/5 hover:border-white/20'
+                      }`}>
+                      <span className="text-2xl">{h.emoji}</span>
+                      <span className={`text-xs font-black uppercase tracking-widest flex-1 ${selectedHabits.includes(i) ? 'text-glow-mint' : 'text-slate-400'}`}>{h.label}</span>
+                      {selectedHabits.includes(i) && <span className="text-accent-green font-black">✓</span>}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-4">
+                  <button onClick={() => setStep(1)} className="flex-1 btn-secondary">GERİ</button>
+                  <button onClick={() => setStep(3)} className="flex-[2] btn-primary">DEVAM ET →</button>
+                </div>
+              </motion.div>
+            )}
+
+            {step === 3 && (
+              <motion.div 
+                key="step3"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="text-center"
+              >
+                <div className="w-20 h-20 rounded-3xl bg-accent-green/10 flex items-center justify-center text-5xl mx-auto mb-8 border border-accent-green/20 animate-float">🚀</div>
+                <h2 className="text-3xl font-black text-white mb-4 text-glow">Her şey hazır!</h2>
+                <p className="text-slate-400 text-lg leading-relaxed mb-8">
+                  {selectedHabits.length > 0
+                    ? `${selectedHabits.length} alışkanlık seçtin. Bunları hesabına ekliyoruz ve serini başlatıyoruz!`
+                    : 'Dashboard\'una gidip istediğin zaman alışkanlık ekleyebilirsin.'}
+                </p>
+
+                {selectedHabits.length > 0 && (
+                  <div className="flex flex-wrap gap-2 justify-center mb-8">
+                    {selectedHabits.map((idx) => (
+                      <span key={idx} className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest bg-accent-green/10 text-glow-mint border border-accent-green/20">
+                        {HABIT_SUGGESTIONS[idx].emoji} {HABIT_SUGGESTIONS[idx].label}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="p-5 rounded-2xl mb-10 text-xs font-bold uppercase tracking-widest leading-loose bg-white/5 text-slate-400 border border-white/10">
+                  💡 AI Coach'un sana her an yardımcı olmak için hazır!<br />
+                  Sağ alttaki <span className="text-glow-mint">Bot</span> butonuna tıkla.
+                </div>
+
+                <button onClick={finish} disabled={loading} className="btn-primary w-full py-4 text-lg">
+                  {loading ? 'YÜKLENİYOR...' : 'DASHBOARD\'A GİT! →'}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Skip */}
         {step < 3 && (
           <button onClick={() => { localStorage.setItem('onboarding_done', 'true'); navigate('/dashboard') }}
-            className="w-full mt-4 text-center text-sm" style={{ color: '#94a3b8' }}>
-            Atla, sonra ayarlarım →
+            className="w-full mt-8 text-center text-xs font-black uppercase tracking-[0.2em] text-slate-600 hover:text-slate-400 transition-colors">
+            ATLA, SONRA AYARLARIM →
           </button>
         )}
       </div>

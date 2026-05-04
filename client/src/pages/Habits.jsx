@@ -139,17 +139,16 @@ export default function Habits() {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white font-display">Alışkanlıklar</h1>
-          <p className="text-sm text-slate-500 mt-0.5">{habits.length} alışkanlık takip ediliyor</p>
+          <h1 className="text-3xl font-black text-white text-glow">Alışkanlıklar</h1>
+          <p className="text-sm text-slate-400 mt-1">{habits.length} aktif alışkanlık takip ediliyor</p>
         </div>
         <motion.button
           onClick={() => setShowForm(true)}
-          className="btn-primary flex-shrink-0 text-sm"
-          style={{ padding: '0.5rem 1rem', gap: '0.375rem' }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+          className="btn-primary"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-5 h-5" />
           <span className="hidden sm:inline">Yeni Alışkanlık</span>
           <span className="sm:hidden">Ekle</span>
         </motion.button>
@@ -161,24 +160,19 @@ export default function Habits() {
           <motion.button
             key={value}
             onClick={() => setFilter(value)}
-            className="px-4 py-2 text-sm font-semibold rounded-xl border transition-all"
-            style={filter === value ? {
-              background: 'rgba(139,92,246,0.15)',
-              border: '1px solid rgba(139,92,246,0.4)',
-              color: '#A78BFA',
-            } : {
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: '#64748B',
-            }}
+            className={`px-5 py-2 text-xs font-bold rounded-xl border transition-all duration-300 uppercase tracking-widest ${
+              filter === value 
+                ? 'bg-accent-green/20 border-accent-green/40 text-glow-mint shadow-[0_0_15px_rgba(103,192,144,0.1)]' 
+                : 'bg-white/5 border-white/10 text-slate-500 hover:text-slate-300 hover:bg-white/10'
+            }`}
             whileTap={{ scale: 0.95 }}
           >
             {label}
           </motion.button>
         ))}
         {habits.length > 0 && (
-          <span className="ml-auto text-sm text-slate-600">
-            {filtered.length} alışkanlık
+          <span className="ml-auto text-xs font-bold text-slate-500 uppercase tracking-widest opacity-50">
+            {filtered.length} Kayıt
           </span>
         )}
       </motion.div>
@@ -187,31 +181,26 @@ export default function Habits() {
       {filtered.length === 0 ? (
         <motion.div
           variants={itemVariants}
-          className="rounded-2xl p-14 text-center"
-          style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.07)',
-          }}
+          className="glass-card p-16 text-center"
         >
-          <div className="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center"
-            style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)' }}>
-            <Target className="w-7 h-7 text-violet-400" />
+          <div className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center bg-accent-green/10 border border-accent-green/20">
+            <Target className="w-10 h-10 text-glow-mint animate-float" />
           </div>
-          <p className="text-slate-300 font-semibold mb-1.5">
+          <h3 className="text-xl font-bold text-slate-100 mb-2">
             {filter === 'all' ? 'Henüz alışkanlık yok' : 'Bu kategoride alışkanlık yok'}
-          </p>
-          <p className="text-slate-600 text-sm mb-6">
-            {filter === 'all' ? 'İlk alışkanlığını ekleyerek başla' : 'Farklı bir filtre dene'}
+          </h3>
+          <p className="text-slate-500 text-sm mb-8 max-w-xs mx-auto">
+            {filter === 'all' ? 'Yeni bir alışkanlık ekleyerek değişim yolculuğuna bugün başla.' : 'Farklı bir filtre deneyerek kayıtlarını görebilirsin.'}
           </p>
           {filter === 'all' && (
             <motion.button
               onClick={() => setShowForm(true)}
-              className="btn-primary text-sm"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
+              className="btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <Plus className="w-4 h-4" />
-              Alışkanlık Ekle
+              <Plus className="w-5 h-5" />
+              Alışkanlık Oluştur
             </motion.button>
           )}
         </motion.div>

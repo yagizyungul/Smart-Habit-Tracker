@@ -1,5 +1,5 @@
 const express = require('express');
-const Groq = require('groq-sdk');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const protect = require('../middleware/auth');
 const Habit = require('../models/Habit');
 const Checkin = require('../models/Checkin');
@@ -8,7 +8,12 @@ const { calcStreak, calcCompletionRate } = require('../utils/streak');
 const router = express.Router();
 router.use(protect);
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const jsonModel = genAI.getGenerativeModel({ 
+  model: 'gemini-1.5-flash',
+  generationConfig: { responseMimeType: 'application/json' } 
+});
 
 async function getUserContext(userId) {
   const today = new Date().toISOString().split('T')[0];
@@ -63,20 +68,19 @@ router.post('/chat', async (req, res, next) => {
 
     const userContext = await getUserContext(req.user.id);
 
-    const messages = [
-      { role: 'system', content: `${SYSTEM_PROMPT}\n\n${userContext}` },
-      ...history.slice(-6).map((h) => ({ role: h.role === 'assistant' ? 'assistant' : 'user', content: h.content })),
-      { role: 'user', content: message },
-    ];
-
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages,
-      max_tokens: 300,
-      temperature: 0.7,
+    const chat = model.startChat({
+      history: [
+        { role: 'user', parts: [{ text: `${SYSTEM_PROMPT}\n\n${userContext}` }] },
+        { role: 'model', parts: [{ text: 'Anlaşıldı, hazırım. Nasıl yardımcı olabilirim?' }] },
+        ...history.slice(-6).map((h) => ({
+          role: h.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: h.content }],
+        })),
+      ],
     });
-
-    const reply = completion.choices[0].message.content;
+    
+    const result = await chat.sendMessage(message);
+    const reply = result.response.text();
     res.json({ reply });
   } catch (err) {
     next(err);
@@ -89,16 +93,7 @@ router.post('/parse-habit', async (req, res, next) => {
     const { text } = req.body;
     if (!text) return res.status(400).json({ message: 'Metin gerekli' });
 
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        {
-          role: 'system',
-          content: 'Sen bir alışkanlık parse edici sistemsin. Sadece geçerli JSON döndür, başka hiçbir şey yazma.',
-        },
-        {
-          role: 'user',
-          content: `Kullanıcı şunu söylüyor: "${text}"
+    const prompt = `Kullanıcı şunu söylüyor: "${text}"
 
 Bu metni bir alışkanlık nesnesine dönüştür. Sadece JSON döndür:
 {
@@ -110,16 +105,11 @@ Bu metni bir alışkanlık nesnesine dönüştür. Sadece JSON döndür:
   "color": "#hex"
 }
 
-Kurallar: daily→[0-6], hafta içi→[1,2,3,4,5], hafta sonu→[0,6]. Renk: spor=#EF4444, meditasyon=#8B5CF6, okuma=#1D9E75, su=#3B82F6, diğer=#7F77DD. Sadece JSON.`,
-        },
-      ],
-      max_tokens: 200,
-      temperature: 0.3,
-    });
+Kurallar: daily→[0-6], hafta içi→[1,2,3,4,5], hafta sonu→[0,6]. Renk: spor=#EF4444, meditasyon=#8B5CF6, okuma=#1D9E75, su=#3B82F6, diğer=#7F77DD.`;
 
-    let raw = completion.choices[0].message.content.trim();
-    raw = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const parsed = JSON.parse(raw);
+    const result = await jsonModel.generateContent(prompt);
+    const reply = result.response.text();
+    const parsed = JSON.parse(reply);
     res.json(parsed);
   } catch (err) {
     next(err);

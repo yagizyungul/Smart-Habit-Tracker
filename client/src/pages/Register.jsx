@@ -14,7 +14,7 @@ function ParticleField() {
       duration: Math.random() * 18 + 10,
       delay: Math.random() * 12,
       opacity: Math.random() * 0.4 + 0.1,
-      color: i % 2 === 0 ? '139,92,246' : '6,182,212',
+      color: i % 2 === 0 ? '103,192,144' : '170,255,199',
     })), []
   )
   return (
@@ -76,10 +76,10 @@ export default function Register() {
     <div className="min-h-screen bg-base flex overflow-hidden relative">
       {/* Background orbs */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-60 -left-60 w-[700px] h-[700px] rounded-full animate-float-slow"
-          style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%)' }} />
-        <div className="absolute -bottom-60 -right-60 w-[600px] h-[600px] rounded-full animate-float-slower"
-          style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%)' }} />
+        <div className="absolute -top-60 -left-60 w-[700px] h-[700px] rounded-full animate-float"
+          style={{ background: 'radial-gradient(circle, rgba(170,255,199,0.06) 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-60 -right-60 w-[600px] h-[600px] rounded-full animate-float"
+          style={{ background: 'radial-gradient(circle, rgba(103,192,144,0.04) 0%, transparent 70%)' }} />
       </div>
 
       {/* Left form panel */}
@@ -87,25 +87,23 @@ export default function Register() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <motion.div
-            className="flex items-center gap-3 mb-8"
+            className="flex items-center gap-4 mb-10"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-neon-purple"
-              style={{ background: 'linear-gradient(135deg, #7C3AED, #6D28D9)' }}>
-              <Zap className="w-4.5 h-4.5 text-white" />
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(170,255,199,0.2)]"
+              style={{ background: 'linear-gradient(135deg, #67C090, #AAFFC7)' }}>
+              <Zap className="w-6 h-6 text-[#124170]" />
             </div>
-            <span className="text-xl font-bold font-display gradient-text">Streakly</span>
+            <span className="text-2xl font-black text-white text-glow">Streakly</span>
           </motion.div>
 
           <motion.div
-            className="neon-border rounded-2xl p-8"
+            className="glass-card p-10 relative overflow-hidden"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: '0 8px 48px rgba(0,0,0,0.55)',
+              background: 'rgba(33, 91, 99, 0.4)',
+              boxShadow: '0 20px 80px rgba(0,0,0,0.5)',
             }}
             initial={{ opacity: 0, scale: 0.97, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -178,7 +176,6 @@ export default function Register() {
                 type="submit"
                 disabled={loading}
                 className="btn-primary w-full mt-2"
-                style={{ background: 'linear-gradient(135deg, #059669, #047857)' }}
                 whileHover={{ scale: 1.015 }}
                 whileTap={{ scale: 0.985 }}
               >
@@ -193,9 +190,9 @@ export default function Register() {
               </motion.button>
             </form>
 
-            <p className="text-center text-slate-500 text-sm mt-6">
+            <p className="text-center text-slate-500 text-sm mt-8">
               Zaten hesabın var mı?{' '}
-              <Link to="/login" className="text-violet-400 hover:text-violet-300 font-medium transition-colors">
+              <Link to="/login" className="text-glow-mint hover:text-white font-bold transition-all duration-300">
                 Giriş Yap
               </Link>
             </p>
@@ -216,9 +213,9 @@ export default function Register() {
 
         <div className="space-y-8">
           <div>
-            <h2 className="text-4xl font-bold text-white leading-tight mb-4 font-display">
+            <h2 className="text-6xl font-black text-white leading-tight mb-6">
               Başarıya giden<br />
-              <span className="gradient-text">yol buradan başlar.</span>
+              <span className="text-glow-mint">yol buradan başlar.</span>
             </h2>
             <p className="text-slate-400 text-lg leading-relaxed max-w-sm">
               Alışkanlıklarını takip et, serileri koru ve her gün biraz daha iyi bir sen ol.
@@ -234,9 +231,9 @@ export default function Register() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
               >
-                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(16,185,129,0.15)' }}>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(170,255,199,0.1)' }}>
+                  <CheckCircle2 className="w-4 h-4 text-glow-mint" />
                 </div>
                 <span className="text-slate-300 text-sm">{f}</span>
               </motion.div>
