@@ -1,4 +1,10 @@
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
+}
 
 const BOOKS = [
   { id: 1, title: 'Atomic Habits', author: 'James Clear', year: 2018, emoji: '⚛️', desc: 'Küçük alışkanlık değişiklikleriyle sürpriz sonuçlar elde etme sanatı.', descEn: 'Tiny changes, remarkable results — the definitive guide to building good habits.', link: 'https://www.goodreads.com/book/show/40121378-atomic-habits', color: '#7F77DD' },
