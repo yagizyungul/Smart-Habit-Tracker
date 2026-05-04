@@ -1,5 +1,5 @@
 const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 const protect = require('../middleware/auth');
 const Habit = require('../models/Habit');
 const Checkin = require('../models/Checkin');
@@ -8,7 +8,7 @@ const { calcStreak, calcCompletionRate } = require('../utils/streak');
 const router = express.Router();
 router.use(protect);
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 async function getUserContext(userId) {
   const today = new Date().toISOString().split('T')[0];
@@ -45,7 +45,7 @@ Kullanıcının alışkanlık verileri (bugün: ${today}):
 - Bugün tamamlanan: ${completedTodayCount}/${habits.length}
 
 Alışkanlık detayları:
-${habitDetails.map((h) => `• ${h.name}: ${h.completionRate30Days}% tamamlanma (son 30 gün), mevcut seri: ${h.currentStreak} gün, en iyi seri: ${h.bestStreak} gün, bugün tamamlandı: ${h.completedToday ? 'Evet' : 'Hayır'}`).join('\n')}
+${habitDetails.map((h) => `• ${h.name}: %${h.completionRate30Days} tamamlanma (son 30 gün), mevcut seri: ${h.currentStreak} gün, en iyi seri: ${h.bestStreak} gün, bugün tamamlandı: ${h.completedToday ? 'Evet' : 'Hayır'}`).join('\n')}
   `.trim();
 }
 
@@ -62,20 +62,21 @@ router.post('/chat', async (req, res, next) => {
     if (!message) return res.status(400).json({ message: 'Mesaj gerekli' });
 
     const userContext = await getUserContext(req.user.id);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const contextualMessage = `${SYSTEM_PROMPT}\n\n${userContext}\n\nKullanıcı sorusu: ${message}`;
+    const messages = [
+      { role: 'system', content: `${SYSTEM_PROMPT}\n\n${userContext}` },
+      ...history.slice(-6).map((h) => ({ role: h.role === 'assistant' ? 'assistant' : 'user', content: h.content })),
+      { role: 'user', content: message },
+    ];
 
-    const chat = model.startChat({
-      history: history.map((h) => ({
-        role: h.role,
-        parts: [{ text: h.content }],
-      })),
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages,
+      max_tokens: 300,
+      temperature: 0.7,
     });
 
-    const result = await chat.sendMessage(contextualMessage);
-    const reply = result.response.text();
-
+    const reply = completion.choices[0].message.content;
     res.json({ reply });
   } catch (err) {
     next(err);
@@ -88,31 +89,36 @@ router.post('/parse-habit', async (req, res, next) => {
     const { text } = req.body;
     if (!text) return res.status(400).json({ message: 'Metin gerekli' });
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        {
+          role: 'system',
+          content: 'Sen bir alışkanlık parse edici sistemsin. Sadece geçerli JSON döndür, başka hiçbir şey yazma.',
+        },
+        {
+          role: 'user',
+          content: `Kullanıcı şunu söylüyor: "${text}"
 
-    const prompt = `Kullanıcı şunu söylüyor: "${text}"
-
-Bu metni bir alışkanlık nesnesine dönüştür. Sadece JSON döndür, başka hiçbir şey yazma:
+Bu metni bir alışkanlık nesnesine dönüştür. Sadece JSON döndür:
 {
   "title": "alışkanlık adı",
-  "description": "açıklama (varsa)",
-  "frequency": "daily" | "weekly" | "custom",
-  "targetDays": [0,1,2,3,4,5,6],  // 0=Pazar, 1=Pazartesi, ..., 6=Cumartesi
-  "reminderTime": "HH:MM" | null,
-  "color": "#hex renk kodu"
+  "description": "kısa açıklama",
+  "frequency": "daily" veya "weekly" veya "custom",
+  "targetDays": [0,1,2,3,4,5,6],
+  "reminderTime": "HH:MM" veya null,
+  "color": "#hex"
 }
 
-Kurallar:
-- frequency "daily" ise targetDays [0,1,2,3,4,5,6] olsun
-- "hafta içi" → targetDays [1,2,3,4,5]
-- "hafta sonu" → targetDays [0,6]
-- Rengi alışkanlığın tipine göre seç (spor=kırmızı, meditasyon=mor, okuma=yeşil, vs)
-- Sadece JSON döndür`;
+Kurallar: daily→[0-6], hafta içi→[1,2,3,4,5], hafta sonu→[0,6]. Renk: spor=#EF4444, meditasyon=#8B5CF6, okuma=#1D9E75, su=#3B82F6, diğer=#7F77DD. Sadece JSON.`,
+        },
+      ],
+      max_tokens: 200,
+      temperature: 0.3,
+    });
 
-    const result = await model.generateContent(prompt);
-    let raw = result.response.text().trim();
+    let raw = completion.choices[0].message.content.trim();
     raw = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-
     const parsed = JSON.parse(raw);
     res.json(parsed);
   } catch (err) {

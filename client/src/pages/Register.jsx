@@ -64,7 +64,7 @@ export default function Register() {
     setLoading(true)
     try {
       await register(form.name.trim(), form.email, form.password)
-      navigate('/dashboard')
+      navigate('/onboarding')
     } catch (err) {
       setError(err.response?.data?.message || 'Kayıt başarısız. Tekrar dene.')
     } finally {
