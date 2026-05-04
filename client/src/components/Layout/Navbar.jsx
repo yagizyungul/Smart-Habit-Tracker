@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Target, BarChart2, Sparkles, LogOut, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Target, BarChart2, Sparkles, LogOut, Menu, X, Zap } from 'lucide-react'
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
