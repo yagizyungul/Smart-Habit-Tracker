@@ -38,8 +38,8 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10kb' }));
 app.use(generalLimiter);
 
-// Routes
-app.use('/api/auth', loginLimiter, authRoutes);
+// Routes — loginLimiter sadece auth route'unda tanımlı
+app.use('/api/auth', authRoutes);
 app.use('/api/habits', habitRoutes);
 app.use('/api/checkins', checkinRoutes);
 app.use('/api/analytics', analyticsRoutes);
