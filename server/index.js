@@ -16,18 +16,29 @@ const { startReminderScheduler } = require('./src/services/emailReminder');
 
 const app = express();
 
-// CORS — Ege'nin Vite dev server'ı + production Vercel URL'si
+const parseOrigins = (value) =>
+  value
+    ? value
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+    : [];
+
+// CORS: local dev + production Vercel URLs
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
+  'https://client-yagiz-yunuls-projects.vercel.app',
+  'https://streakly-smart-habit-tracker-app.vercel.app',
+  ...parseOrigins(process.env.CLIENT_URL),
+  ...parseOrigins(process.env.CLIENT_URLS),
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-      callback(new Error('CORS policy: bu origin izin listesinde yok'));
+      callback(new Error(`CORS policy: ${origin} izin listesinde yok`));
     },
     credentials: true,
   })
