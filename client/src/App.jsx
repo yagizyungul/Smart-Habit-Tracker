@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { DataCacheProvider } from './context/DataCacheContext'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import AppLayout from './components/Layout/AppLayout'
@@ -14,24 +15,26 @@ import Onboarding from './pages/Onboarding'
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/habits" element={<Habits />} />
-              <Route path="/habits/:id" element={<HabitDetail />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/inspiration" element={<Inspiration />} />
+      <DataCacheProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppLayout />}>
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/habits" element={<Habits />} />
+                <Route path="/habits/:id" element={<HabitDetail />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/inspiration" element={<Inspiration />} />
+              </Route>
             </Route>
-          </Route>
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </AuthProvider>
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </AuthProvider>
+      </DataCacheProvider>
     </BrowserRouter>
   )
 }

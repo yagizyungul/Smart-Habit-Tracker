@@ -5,6 +5,7 @@ import { Download, Flame, TrendingUp, Star, Check } from 'lucide-react'
 import api from '../services/api'
 import HeatmapGrid from '../components/HeatmapGrid'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { useDataCache, CACHE_KEYS } from '../context/DataCacheContext'
 
 const DARK_TOOLTIP = {
   background: 'rgba(14,14,26,0.95)',
@@ -52,11 +53,24 @@ function StatCard({ label, value, sub, icon: Icon, color, gradient }) {
 }
 
 export default function Analytics() {
+  const cache = useDataCache()
   const [overview, setOverview] = useState(null)
   const [dash, setDash] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => { loadData() }, [])
+  useEffect(() => {
+    // Önce cache'den anında yükle
+    const cachedOverview = cache.get(CACHE_KEYS.ANALYTICS_OVERVIEW)
+    const cachedDash     = cache.get(CACHE_KEYS.ANALYTICS_DASHBOARD)
+
+    if (cachedOverview && cachedDash) {
+      setOverview(cachedOverview)
+      setDash(cachedDash)
+      setLoading(false)
+    } else {
+      loadData()
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
     try {

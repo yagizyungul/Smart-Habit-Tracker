@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import api from '../services/api'
+import { useDataCache } from './DataCacheContext'
 
 const AuthContext = createContext(null)
 
@@ -7,6 +8,8 @@ const USER_KEY = 'streakly_user'
 const TOKEN_KEY = 'token'
 
 export function AuthProvider({ children }) {
+  const { prefetchAll, clearCache } = useDataCache()
+
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem(USER_KEY)) } catch { return null }
   })
@@ -21,11 +24,12 @@ export function AuthProvider({ children }) {
     if (cached) {
       try { setUser(JSON.parse(cached)) } catch {}
       setLoading(false)
-      // Sessiz arka plan yenileme — rate limit baskısı yok
+      // Sessiz arka plan: kullanıcı bilgisini doğrula + data cache'i doldur (F5 sonrası boş olabilir)
       api.get('/api/auth/me')
         .then(({ data }) => {
           setUser(data)
           localStorage.setItem(USER_KEY, JSON.stringify(data))
+          prefetchAll().catch(() => {})
         })
         .catch(() => {
           localStorage.removeItem(TOKEN_KEY)
@@ -37,6 +41,7 @@ export function AuthProvider({ children }) {
         .then(({ data }) => {
           setUser(data)
           localStorage.setItem(USER_KEY, JSON.stringify(data))
+          prefetchAll().catch(() => {})
         })
         .catch(() => {
           localStorage.removeItem(TOKEN_KEY)
@@ -45,13 +50,15 @@ export function AuthProvider({ children }) {
         })
         .finally(() => setLoading(false))
     }
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const login = async (email, password) => {
     const { data } = await api.post('/api/auth/login', { email, password })
     localStorage.setItem(TOKEN_KEY, data.token)
     localStorage.setItem(USER_KEY, JSON.stringify(data.user))
     setUser(data.user)
+    // Login sonrası tüm kullanıcı verilerini arka planda önceden çek
+    prefetchAll().catch(() => {})
     return data
   }
 
@@ -60,12 +67,15 @@ export function AuthProvider({ children }) {
     localStorage.setItem(TOKEN_KEY, data.token)
     localStorage.setItem(USER_KEY, JSON.stringify(data.user))
     setUser(data.user)
+    // Register sonrası da aynı şekilde prefetch yap
+    prefetchAll().catch(() => {})
     return data
   }
 
   const logout = () => {
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
+    clearCache()
     setUser(null)
   }
 

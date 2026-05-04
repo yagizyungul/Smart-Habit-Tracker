@@ -5,6 +5,7 @@ import api from '../services/api'
 import HabitCard from '../components/HabitCard'
 import HabitForm from '../components/HabitForm'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { useDataCache, CACHE_KEYS } from '../context/DataCacheContext'
 
 const FILTERS = [
   { value: 'all', label: 'Tümü' },
@@ -22,6 +23,7 @@ const itemVariants = {
 }
 
 export default function Habits() {
+  const cache = useDataCache()
   const [habits, setHabits] = useState([])
   const [checkedIds, setCheckedIds] = useState(new Set())
   const [completionRates, setCompletionRates] = useState({})
@@ -32,7 +34,36 @@ export default function Habits() {
 
   const today = new Date().toISOString().split('T')[0]
 
-  useEffect(() => { loadData() }, [])
+  useEffect(() => {
+    // Önce cache'den anında yükle
+    const cachedHabits   = cache.get(CACHE_KEYS.HABITS)
+    const cachedCheckins = cache.get(CACHE_KEYS.CHECKINS_TODAY)
+
+    if (cachedHabits && cachedCheckins) {
+      setHabits(cachedHabits)
+      setCheckedIds(new Set(cachedCheckins.map((c) => String(c.habitId))))
+      // Tamamlanma oranlarını API'den çek (bunlar çok değişen veriler değil)
+      loadCompletionRates(cachedHabits)
+      setLoading(false)
+    } else {
+      loadData()
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadCompletionRates = async (habitList) => {
+    const rates = {}
+    await Promise.allSettled(
+      habitList.map(async (habit) => {
+        try {
+          const res = await api.get(`/api/analytics/habit/${habit._id}`)
+          rates[habit._id] = res.data.completionRate ?? 0
+        } catch {
+          rates[habit._id] = 0
+        }
+      })
+    )
+    setCompletionRates(rates)
+  }
 
   const loadData = async () => {
     try {
@@ -43,19 +74,7 @@ export default function Habits() {
       const habits = habitsRes.data
       setHabits(habits)
       setCheckedIds(new Set(checkinsRes.data.map((c) => String(c.habitId))))
-
-      const rates = {}
-      await Promise.allSettled(
-        habits.map(async (habit) => {
-          try {
-            const res = await api.get(`/api/analytics/habit/${habit._id}`)
-            rates[habit._id] = res.data.completionRate ?? 0
-          } catch {
-            rates[habit._id] = 0
-          }
-        })
-      )
-      setCompletionRates(rates)
+      await loadCompletionRates(habits)
     } catch (err) {
       console.error(err)
     } finally {
@@ -68,6 +87,8 @@ export default function Habits() {
     setCheckedIds((prev) => new Set([...prev, habitId]))
     try {
       await api.post('/api/checkins', { habitId, date: today })
+      // Cache'deki checkin ve dashboard verilerini tazele
+      cache.invalidateMany(CACHE_KEYS.CHECKINS_TODAY, CACHE_KEYS.ANALYTICS_DASHBOARD)
     } catch {
       setCheckedIds((prev) => {
         const next = new Set(prev)
@@ -82,7 +103,17 @@ export default function Habits() {
     try {
       await api.post('/api/habits', form)
       setShowForm(false)
-      await loadData()
+      // Habit oluşturulduktan sonra habit + analytics cache'ini tazele, UI'yi güncelle
+      const [freshHabits, freshCheckins] = await Promise.all([
+        cache.invalidate(CACHE_KEYS.HABITS),
+        cache.invalidate(CACHE_KEYS.CHECKINS_TODAY),
+      ])
+      cache.invalidateMany(CACHE_KEYS.ANALYTICS_DASHBOARD, CACHE_KEYS.ANALYTICS_OVERVIEW)
+      if (freshHabits) {
+        setHabits(freshHabits)
+        loadCompletionRates(freshHabits)
+      }
+      if (freshCheckins) setCheckedIds(new Set(freshCheckins.map((c) => String(c.habitId))))
     } catch (err) {
       console.error(err)
     } finally {

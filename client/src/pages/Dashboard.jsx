@@ -7,6 +7,7 @@ import api from '../services/api'
 import HeatmapGrid from '../components/HeatmapGrid'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { useAuth } from '../context/AuthContext'
+import { useDataCache, CACHE_KEYS } from '../context/DataCacheContext'
 
 const DARK_TOOLTIP = {
   background: 'rgba(14,14,26,0.95)',
@@ -68,6 +69,7 @@ function greeting() {
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const cache = useDataCache()
   const [analytics, setAnalytics] = useState(null)
   const [habits, setHabits] = useState([])
   const [checkedIds, setCheckedIds] = useState(new Set())
@@ -76,7 +78,25 @@ export default function Dashboard() {
 
   const today = new Date().toISOString().split('T')[0]
 
-  useEffect(() => { loadAll() }, [])
+  useEffect(() => {
+    // Önce cache'den anında yükle
+    const cachedHabits    = cache.get(CACHE_KEYS.HABITS)
+    const cachedAnalytics = cache.get(CACHE_KEYS.ANALYTICS_DASHBOARD)
+    const cachedCheckins  = cache.get(CACHE_KEYS.CHECKINS_TODAY)
+    const cachedOverview  = cache.get(CACHE_KEYS.ANALYTICS_OVERVIEW)
+
+    if (cachedHabits && cachedAnalytics && cachedCheckins && cachedOverview) {
+      // Cache tam dolu — anında göster, API isteği yok
+      setHabits(cachedHabits)
+      setAnalytics(cachedAnalytics)
+      setCheckedIds(new Set(cachedCheckins.map((c) => String(c.habitId))))
+      setOverviewData(cachedOverview)
+      setLoading(false)
+    } else {
+      // Cache boş (ilk açılış veya temizlenmiş) — API'den çek
+      loadAll()
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadAll = async () => {
     try {
@@ -102,8 +122,13 @@ export default function Dashboard() {
     setCheckedIds((prev) => new Set([...prev, habitId]))
     try {
       await api.post('/api/checkins', { habitId, date: today })
-      const res = await api.get('/api/analytics/dashboard')
-      setAnalytics(res.data)
+      // Checkin sonrası dashboard ve bugünkü checkin listesini tazele
+      const [freshDash, freshCheckins] = await Promise.all([
+        cache.invalidate(CACHE_KEYS.ANALYTICS_DASHBOARD),
+        cache.invalidate(CACHE_KEYS.CHECKINS_TODAY),
+      ])
+      if (freshDash) setAnalytics(freshDash)
+      if (freshCheckins) setCheckedIds(new Set(freshCheckins.map((c) => String(c.habitId))))
     } catch {
       setCheckedIds((prev) => {
         const next = new Set(prev)
