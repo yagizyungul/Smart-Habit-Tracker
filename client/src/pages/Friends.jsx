@@ -87,15 +87,6 @@ export default function Friends() {
           <h1 className="text-3xl font-black text-white text-glow">Arkadaşlar</h1>
           <p className="text-sm text-slate-400 mt-1">Lider tablosu, istekler, arkadaş ekle</p>
         </div>
-        <motion.button
-          onClick={() => setSearchOpen(true)}
-          className="btn-primary"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <UserPlus className="w-5 h-5" />
-          <span className="hidden sm:inline">Arkadaş Ekle</span>
-        </motion.button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -128,8 +119,8 @@ export default function Friends() {
                         border: row.isMe ? '1px solid rgba(170,255,199,0.2)' : '1px solid transparent',
                       }}
                     >
-                      <div className="w-9 text-center font-bold text-sm">
-                        {i < 3 ? <span className="text-xl">{medal}</span> : <span className="text-slate-500">{medal}</span>}
+                      <div className="w-9 text-center font-bold text-sm flex items-center justify-center">
+                        {i < 3 ? <span className="text-xl leading-none">{medal}</span> : <span className="text-slate-500">{medal}</span>}
                       </div>
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
                         style={{ background: 'rgba(255,255,255,0.05)' }}

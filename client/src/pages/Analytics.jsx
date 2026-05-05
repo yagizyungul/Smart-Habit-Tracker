@@ -44,8 +44,8 @@ function StatCard({ label, value, sub, icon: Icon, color }) {
         <Icon className="w-5 h-5" style={{ color }} />
       </div>
       <div className="stat-number text-3xl mb-1 text-glow" style={{ color }}>{value}</div>
-      <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">{label}</div>
-      {sub && <div className="text-[11px] text-slate-500 mt-1 font-medium italic">{sub}</div>}
+      <div className="text-xs font-bold text-slate-300 uppercase tracking-widest">{label}</div>
+      {sub && <div className="text-[11px] text-slate-400 mt-1 font-medium italic">{sub}</div>}
     </motion.div>
   )
 }
@@ -116,7 +116,7 @@ export default function Analytics() {
       <motion.div variants={itemVariants} className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-white text-glow">Analitik</h1>
-          <p className="text-sm text-slate-400 mt-1">Performansının derinlemesine analizi</p>
+          <p className="text-sm text-slate-300 mt-1">Performansının derinlemesine analizi</p>
         </div>
         <motion.button
           onClick={handleExport}
@@ -172,7 +172,7 @@ export default function Analytics() {
         >
           <h2 className="text-base font-bold text-slate-100 mb-6">Alışkanlık Başarı Oranları</h2>
           {sortedHabits.length === 0 ? (
-            <div className="h-40 flex items-center justify-center text-slate-600 text-sm">Henüz veri yok</div>
+            <div className="h-40 flex items-center justify-center text-slate-400 text-sm">Henüz veri yok</div>
           ) : (
             <div className="space-y-4">
               {sortedHabits.map((h) => {
@@ -186,7 +186,7 @@ export default function Analytics() {
                         <span className="text-sm text-slate-300 truncate max-w-[180px]">{h.title}</span>
                       </div>
                       <div className="flex items-center gap-2.5 flex-shrink-0 ml-2">
-                        <span className="text-xs text-slate-600">{h.streak} gün seri</span>
+                        <span className="text-xs text-slate-400">{h.streak} gün seri</span>
                         <span className="text-sm font-bold" style={{ color: barColor }}>{h.completionRate}%</span>
                       </div>
                     </div>
@@ -215,7 +215,7 @@ export default function Analytics() {
           {overview?.monthlyTrend?.length ? (
             <ResponsiveContainer width="100%" height={168}>
               <BarChart data={overview.monthlyTrend} barSize={40} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#475569' }} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
                 <YAxis hide domain={[0, 100]} />
                 <Tooltip
                   cursor={{ fill: 'rgba(255,255,255,0.03)' }}
@@ -241,7 +241,7 @@ export default function Analytics() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-40 flex items-center justify-center text-slate-600 text-sm">Henüz veri yok</div>
+            <div className="h-40 flex items-center justify-center text-slate-400 text-sm">Henüz veri yok</div>
           )}
         </motion.div>
         {/* Daily last 30 days */}
@@ -257,7 +257,7 @@ export default function Analytics() {
                 dataKey="date"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 9, fill: '#475569' }}
+                tick={{ fontSize: 9, fill: '#94a3b8' }}
                 tickFormatter={(d) => {
                   const dt = new Date(d)
                   return `${dt.getDate()}/${dt.getMonth() + 1}`
@@ -282,7 +282,7 @@ export default function Analytics() {
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-32 flex items-center justify-center text-slate-600 text-sm">Henüz veri yok</div>
+          <div className="h-32 flex items-center justify-center text-slate-400 text-sm">Henüz veri yok</div>
         )}
       </motion.div>
       </motion.div>

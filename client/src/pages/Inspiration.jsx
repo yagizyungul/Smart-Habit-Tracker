@@ -104,7 +104,7 @@ export default function Inspiration() {
       </motion.div>
 
       {/* Tabs */}
-      <motion.div variants={itemVariants} className="flex gap-2 p-1.5 rounded-2xl bg-white/5 border border-white/5">
+      <motion.div variants={itemVariants} className="inline-flex gap-2 p-1.5 rounded-2xl bg-white/5 border border-white/5">
         {[
           { id: 'books', label: tr ? 'Kitaplar' : 'Books', icon: '📚' },
           { id: 'music', label: tr ? 'Müzik' : 'Music', icon: '🎵' },
@@ -112,7 +112,7 @@ export default function Inspiration() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${
+            className={`px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${
               activeTab === tab.id 
                 ? 'bg-accent-green/20 text-glow-mint border border-accent-green/30' 
                 : 'text-slate-500 hover:text-slate-300'

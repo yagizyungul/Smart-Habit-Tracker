@@ -108,7 +108,7 @@ export default function AppLayout() {
 
       <Navbar />
 
-      <main className="relative z-10 w-full px-4 sm:px-8 lg:px-12 2xl:px-16 py-8 pt-28">
+      <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 py-8 pt-28">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

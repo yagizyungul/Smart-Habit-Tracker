@@ -170,10 +170,16 @@ export default function Focus() {
           <p className="text-sm text-slate-400 mt-1">Pomodoro tekniği ile odaklan ve çalış.</p>
         </div>
 
-        <div className="glass-card p-4 mt-6">
-          <div className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
-            Odaklanılacak Hedef
-          </div>
+        <div
+            className="w-full lg:w-80 flex-shrink-0 rounded-3xl p-5 border overflow-y-auto"
+            style={{ 
+              background: 'rgba(255,255,255,0.015)', 
+              borderColor: 'rgba(255,255,255,0.05)',
+              maxHeight: 'calc(100vh - 12rem)'
+            }}
+          >
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 px-2">Odaklanılacak Hedef</h2>
+          
           <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
             {activeHabits.map(habit => (
               <button
@@ -344,7 +350,7 @@ export default function Focus() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="w-full max-w-sm mb-10 z-10"
+              className="w-full max-w-sm mb-4 z-10"
             >
               <div className="flex justify-between text-xs font-bold text-slate-500 mb-2">
                 <span>10 dk</span>
@@ -387,7 +393,7 @@ export default function Focus() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="w-full max-w-sm mb-10 z-10"
+              className="w-full max-w-sm mb-4 z-10"
             >
               <div className="flex justify-between text-xs font-bold text-slate-500 mb-2">
                 <span>5 dk</span>
