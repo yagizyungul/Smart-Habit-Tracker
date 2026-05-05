@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Play, Pause, RotateCcw, Target, Coffee, CheckCircle2 } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import api from '../services/api'
-import { useDataCache } from '../context/DataCacheContext'
+import { useDataCache, CACHE_KEYS } from '../context/DataCacheContext'
 import { useTheme } from '../context/ThemeContext'
 import LoadingSpinner from '../components/LoadingSpinner'
 
@@ -11,9 +11,11 @@ const FOCUS_MINUTES = 25
 const BREAK_MINUTES = 5
 
 export default function Focus() {
-  const { habits, loading } = useDataCache()
+  const cache = useDataCache()
   const { accent } = useTheme()
 
+  const [habits, setHabits] = useState([])
+  const [loading, setLoading] = useState(true)
   const [selectedHabitId, setSelectedHabitId] = useState('')
   const [mode, setMode] = useState('focus') // 'focus' | 'break'
   
@@ -24,6 +26,25 @@ export default function Focus() {
   
   const intervalRef = useRef(null)
   const completedRef = useRef(false)
+
+  useEffect(() => {
+    let active = true
+    const cached = cache.get(CACHE_KEYS.HABITS)
+    if (cached) {
+      setHabits(cached)
+      setLoading(false)
+    } else {
+      api.get('/api/habits').then(res => {
+        if (active) {
+          setHabits(res.data)
+          setLoading(false)
+        }
+      }).catch(() => {
+        if (active) setLoading(false)
+      })
+    }
+    return () => { active = false }
+  }, [cache])
 
   // Aktif alışkanlıkları filtrele
   const activeHabits = useMemo(() => habits.filter(h => h.isActive), [habits])
