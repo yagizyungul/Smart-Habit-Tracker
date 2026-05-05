@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Play, Pause, RotateCcw, Target, Coffee, CheckCircle2 } from 'lucide-react'
+import { Play, Pause, RotateCcw, Target, Coffee, CheckCircle2, Music, X } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import api from '../services/api'
 import { useDataCache, CACHE_KEYS } from '../context/DataCacheContext'
 import { useTheme } from '../context/ThemeContext'
 import LoadingSpinner from '../components/LoadingSpinner'
 
-const FOCUS_MINUTES = 25
 const BREAK_MINUTES = 5
+
+const MUSIC_TRACKS = [
+  { id: 'jfKfPfyJRdk', title: 'Lofi Hip Hop Radio', emoji: '🎧' },
+  { id: 'mIYzpCGuIWE', title: 'Klasik Müzik (Odak)', emoji: '🎻' },
+  { id: '4xDzrJKXOOY', title: 'Deep Focus (Uzay)', emoji: '🌌' },
+]
 
 export default function Focus() {
   const cache = useDataCache()
@@ -17,12 +22,17 @@ export default function Focus() {
   const [habits, setHabits] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedHabitId, setSelectedHabitId] = useState('')
+  
+  const [focusDuration, setFocusDuration] = useState(25) // Dakika
   const [mode, setMode] = useState('focus') // 'focus' | 'break'
   
-  const totalSeconds = mode === 'focus' ? FOCUS_MINUTES * 60 : BREAK_MINUTES * 60
+  const totalSeconds = mode === 'focus' ? focusDuration * 60 : BREAK_MINUTES * 60
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds)
   const [running, setRunning] = useState(false)
   const [sessionCompleted, setSessionCompleted] = useState(false)
+
+  const [showMusic, setShowMusic] = useState(false)
+  const [currentTrack, setCurrentTrack] = useState(0)
   
   const intervalRef = useRef(null)
   const completedRef = useRef(false)
@@ -57,6 +67,13 @@ export default function Focus() {
     }
   }, [loading, activeHabits, selectedHabitId])
 
+  // focusDuration değiştiğinde sayacı güncelle (eğer çalışmıyorsa)
+  useEffect(() => {
+    if (!running && mode === 'focus') {
+      setSecondsLeft(focusDuration * 60)
+    }
+  }, [focusDuration, running, mode])
+
   useEffect(() => {
     if (!running) return
     intervalRef.current = setInterval(() => {
@@ -81,7 +98,6 @@ export default function Focus() {
   const handleFocusComplete = async () => {
     setSessionCompleted(true)
     
-    // Konfeti patlat!
     confetti({
       particleCount: 150,
       spread: 70,
@@ -96,7 +112,7 @@ export default function Focus() {
       await api.post('/api/checkins/focus', {
         habitId: selectedHabitId,
         date: today,
-        focusMinutes: FOCUS_MINUTES
+        focusMinutes: focusDuration
       })
     } catch (err) {
       console.error('Focus save error:', err)
@@ -106,7 +122,7 @@ export default function Focus() {
   const switchMode = (nextMode) => {
     clearInterval(intervalRef.current)
     setMode(nextMode)
-    setSecondsLeft(nextMode === 'focus' ? FOCUS_MINUTES * 60 : BREAK_MINUTES * 60)
+    setSecondsLeft(nextMode === 'focus' ? focusDuration * 60 : BREAK_MINUTES * 60)
     setRunning(false)
     setSessionCompleted(false)
     if (nextMode === 'focus') completedRef.current = false
@@ -143,7 +159,7 @@ export default function Focus() {
 
   return (
     <motion.div
-      className="max-w-5xl mx-auto flex flex-col md:flex-row gap-8 items-start"
+      className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 items-start"
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -159,7 +175,7 @@ export default function Focus() {
           <div className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
             Odaklanılacak Hedef
           </div>
-          <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+          <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
             {activeHabits.map(habit => (
               <button
                 key={habit._id}
@@ -184,6 +200,54 @@ export default function Focus() {
             ))}
           </div>
         </div>
+
+        {/* Müzik Oynatıcı Paneli */}
+        <AnimatePresence>
+          {showMusic && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, scale: 0.95 }}
+              animate={{ opacity: 1, height: 'auto', scale: 1 }}
+              exit={{ opacity: 0, height: 0, scale: 0.95 }}
+              className="glass-card mt-4 overflow-hidden"
+              style={{ border: `1px solid ${color}40` }}
+            >
+              <div className="p-4 flex items-center justify-between border-b border-white/5">
+                <div className="flex items-center gap-2">
+                  <Music className="w-4 h-4 text-slate-300" />
+                  <span className="text-sm font-bold text-slate-200">Arka Plan Müziği</span>
+                </div>
+                <button onClick={() => setShowMusic(false)} className="text-slate-500 hover:text-slate-300">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-3">
+                <div className="flex gap-2 mb-3 overflow-x-auto custom-scrollbar pb-2">
+                  {MUSIC_TRACKS.map((track, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentTrack(i)}
+                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        currentTrack === i ? 'bg-white/20 text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                      }`}
+                    >
+                      {track.emoji} {track.title}
+                    </button>
+                  ))}
+                </div>
+                <div className="rounded-xl overflow-hidden bg-black/50 aspect-video relative">
+                  <iframe
+                    className="absolute inset-0 w-full h-full"
+                    src={`https://www.youtube.com/embed/${MUSIC_TRACKS[currentTrack].id}?autoplay=1`}
+                    title="YouTube video player"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Sağ Panel: Sayaç */}
@@ -194,7 +258,7 @@ export default function Focus() {
           style={{ background: `radial-gradient(circle, ${color}, transparent 70%)` }}
         />
 
-        <div className="flex justify-center gap-3 mb-12 relative z-10">
+        <div className="flex justify-center gap-3 mb-8 relative z-10">
           <button
             onClick={() => switchMode('focus')}
             className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold uppercase tracking-widest transition-all"
@@ -225,7 +289,8 @@ export default function Focus() {
           </button>
         </div>
 
-        <div className="relative flex items-center justify-center mb-12 z-10">
+        {/* Dairesel Sayaç */}
+        <div className="relative flex items-center justify-center mb-10 z-10">
           <svg width="360" height="360" className="transform -rotate-90">
             <circle
               cx="180"
@@ -254,7 +319,7 @@ export default function Focus() {
               {mm}:{ss}
             </div>
             <div className="text-sm font-bold text-slate-500 uppercase tracking-widest mt-4">
-              {mode === 'focus' ? `${FOCUS_MINUTES} dk odak seansı` : `${BREAK_MINUTES} dk mola`}
+              {mode === 'focus' ? `${focusDuration} dk odak seansı` : `${BREAK_MINUTES} dk mola`}
             </div>
             
             <AnimatePresence>
@@ -273,15 +338,61 @@ export default function Focus() {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-6 z-10">
+        {/* Forest-style Zaman Kaydırıcısı (Sadece Odak Modunda ve Çalışmıyorken) */}
+        <AnimatePresence>
+          {mode === 'focus' && !running && !sessionCompleted && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="w-full max-w-sm mb-10 z-10"
+            >
+              <div className="flex justify-between text-xs font-bold text-slate-500 mb-2">
+                <span>10 dk</span>
+                <span className="text-white">Odak Süresi: {focusDuration} dk</span>
+                <span>120 dk</span>
+              </div>
+              <input 
+                type="range" 
+                min="10" 
+                max="120" 
+                step="5" 
+                value={focusDuration}
+                onChange={(e) => setFocusDuration(Number(e.target.value))}
+                className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                style={{
+                  background: `linear-gradient(to right, ${color} ${((focusDuration - 10) / 110) * 100}%, rgba(255,255,255,0.1) ${((focusDuration - 10) / 110) * 100}%)`,
+                  outline: 'none'
+                }}
+              />
+              <style dangerouslySetInnerHTML={{__html: `
+                input[type=range]::-webkit-slider-thumb {
+                  appearance: none;
+                  width: 20px;
+                  height: 20px;
+                  border-radius: 50%;
+                  background: #fff;
+                  box-shadow: 0 0 10px ${color}80;
+                  cursor: pointer;
+                  border: 2px solid ${color};
+                }
+              `}} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex items-center justify-center gap-6 z-10 mt-auto">
           <motion.button
-            onClick={resetTimer}
-            className="w-14 h-14 rounded-2xl flex items-center justify-center bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-all"
+            onClick={() => setShowMusic(!showMusic)}
+            className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
+              showMusic ? 'bg-white/20 text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+            }`}
             whileTap={{ scale: 0.92 }}
-            title="Sıfırla"
+            title="Arka Plan Müziği"
           >
-            <RotateCcw className="w-6 h-6" />
+            <Music className="w-6 h-6" />
           </motion.button>
+          
           <motion.button
             onClick={() => setRunning(!running)}
             className="w-20 h-20 rounded-3xl flex items-center justify-center transition-all"
@@ -295,7 +406,15 @@ export default function Focus() {
               ? <Pause className="w-8 h-8 text-white" />
               : <Play className="w-8 h-8 text-[#0E1A20] ml-1.5" />}
           </motion.button>
-          <div className="w-14" /> {/* Dengeleme için */}
+
+          <motion.button
+            onClick={resetTimer}
+            className="w-14 h-14 rounded-2xl flex items-center justify-center bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-all"
+            whileTap={{ scale: 0.92 }}
+            title="Sıfırla"
+          >
+            <RotateCcw className="w-6 h-6" />
+          </motion.button>
         </div>
       </div>
     </motion.div>
