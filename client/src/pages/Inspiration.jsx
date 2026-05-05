@@ -129,22 +129,24 @@ export default function Inspiration() {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
         >
           {BOOKS.map((book, i) => (
             <a key={book.id} href={book.link} target="_blank" rel="noopener noreferrer"
-              className="glass-card p-5 group flex gap-5 transition-all duration-300 hover:-translate-y-1"
+              className="glass-card group flex flex-col transition-all duration-300 hover:-translate-y-2 overflow-hidden"
             >
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 transition-all duration-300 group-hover:scale-110" style={{ background: book.color + '15' }}>
-                {book.emoji}
+              <div className="h-40 w-full flex flex-col items-center justify-center text-5xl transition-all duration-500 group-hover:scale-105 relative" style={{ background: `linear-gradient(135deg, ${book.color}40, ${book.color}10)` }}>
+                <span className="relative z-10">{book.emoji}</span>
+                <div className="absolute top-3 right-3 text-[10px] font-black text-white/40">#{i + 1}</div>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-bold text-slate-100 group-hover:text-glow-mint transition-colors truncate">{book.title}</p>
-                  <span className="text-[10px] font-black text-slate-700">#{i + 1}</span>
+              <div className="p-5 flex-1 flex flex-col">
+                <p className="font-bold text-slate-100 group-hover:text-glow-mint transition-colors line-clamp-1 mb-1">{book.title}</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: book.color }}>{book.author} · {book.year}</p>
+                <p className="text-xs text-slate-400 leading-relaxed line-clamp-3 mb-5 flex-1">{tr ? book.desc : book.descEn}</p>
+                <div className="mt-auto text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-white transition-colors flex items-center justify-between">
+                  <span>{tr ? 'İncele' : 'View'}</span>
+                  <span className="text-lg leading-none">→</span>
                 </div>
-                <p className="text-[11px] font-bold uppercase tracking-wider mt-1" style={{ color: book.color }}>{book.author} · {book.year}</p>
-                <p className="text-xs text-slate-500 mt-2 leading-relaxed line-clamp-2">{tr ? book.desc : book.descEn}</p>
               </div>
             </a>
           ))}

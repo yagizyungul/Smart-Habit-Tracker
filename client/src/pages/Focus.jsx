@@ -7,8 +7,6 @@ import { useDataCache, CACHE_KEYS } from '../context/DataCacheContext'
 import { useTheme } from '../context/ThemeContext'
 import LoadingSpinner from '../components/LoadingSpinner'
 
-const BREAK_MINUTES = 5
-
 const MUSIC_TRACKS = [
   { id: 'jfKfPfyJRdk', title: 'Lofi Hip Hop Radio', emoji: '🎧' },
   { id: 'mIYzpCGuIWE', title: 'Klasik Müzik (Odak)', emoji: '🎻' },
@@ -24,9 +22,10 @@ export default function Focus() {
   const [selectedHabitId, setSelectedHabitId] = useState('')
   
   const [focusDuration, setFocusDuration] = useState(25) // Dakika
+  const [breakDuration, setBreakDuration] = useState(5) // Dakika
   const [mode, setMode] = useState('focus') // 'focus' | 'break'
   
-  const totalSeconds = mode === 'focus' ? focusDuration * 60 : BREAK_MINUTES * 60
+  const totalSeconds = mode === 'focus' ? focusDuration * 60 : breakDuration * 60
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds)
   const [running, setRunning] = useState(false)
   const [sessionCompleted, setSessionCompleted] = useState(false)
@@ -67,12 +66,12 @@ export default function Focus() {
     }
   }, [loading, activeHabits, selectedHabitId])
 
-  // focusDuration değiştiğinde sayacı güncelle (eğer çalışmıyorsa)
+  // focusDuration veya breakDuration değiştiğinde sayacı güncelle (eğer çalışmıyorsa)
   useEffect(() => {
-    if (!running && mode === 'focus') {
-      setSecondsLeft(focusDuration * 60)
+    if (!running) {
+      setSecondsLeft(mode === 'focus' ? focusDuration * 60 : breakDuration * 60)
     }
-  }, [focusDuration, running, mode])
+  }, [focusDuration, breakDuration, running, mode])
 
   useEffect(() => {
     if (!running) return
@@ -122,7 +121,7 @@ export default function Focus() {
   const switchMode = (nextMode) => {
     clearInterval(intervalRef.current)
     setMode(nextMode)
-    setSecondsLeft(nextMode === 'focus' ? focusDuration * 60 : BREAK_MINUTES * 60)
+    setSecondsLeft(nextMode === 'focus' ? focusDuration * 60 : breakDuration * 60)
     setRunning(false)
     setSessionCompleted(false)
     if (nextMode === 'focus') completedRef.current = false
@@ -319,7 +318,7 @@ export default function Focus() {
               {mm}:{ss}
             </div>
             <div className="text-sm font-bold text-slate-500 uppercase tracking-widest mt-4">
-              {mode === 'focus' ? `${focusDuration} dk odak seansı` : `${BREAK_MINUTES} dk mola`}
+              {mode === 'focus' ? `${focusDuration} dk odak seansı` : `${breakDuration} dk mola`}
             </div>
             
             <AnimatePresence>
@@ -375,6 +374,49 @@ export default function Focus() {
                   box-shadow: 0 0 10px ${color}80;
                   cursor: pointer;
                   border: 2px solid ${color};
+                }
+              `}} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mola Zaman Kaydırıcısı (Sadece Mola Modunda ve Çalışmıyorken) */}
+        <AnimatePresence>
+          {mode === 'break' && !running && !sessionCompleted && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="w-full max-w-sm mb-10 z-10"
+            >
+              <div className="flex justify-between text-xs font-bold text-slate-500 mb-2">
+                <span>5 dk</span>
+                <span className="text-white">Mola Süresi: {breakDuration} dk</span>
+                <span>30 dk</span>
+              </div>
+              <input 
+                type="range" 
+                min="5" 
+                max="30" 
+                step="5" 
+                value={breakDuration}
+                onChange={(e) => setBreakDuration(Number(e.target.value))}
+                className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                style={{
+                  background: `linear-gradient(to right, #3B82F6 ${((breakDuration - 5) / 25) * 100}%, rgba(255,255,255,0.1) ${((breakDuration - 5) / 25) * 100}%)`,
+                  outline: 'none'
+                }}
+              />
+              <style dangerouslySetInnerHTML={{__html: `
+                input[type=range]::-webkit-slider-thumb {
+                  appearance: none;
+                  width: 20px;
+                  height: 20px;
+                  border-radius: 50%;
+                  background: #fff;
+                  box-shadow: 0 0 10px rgba(59,130,246,0.8);
+                  cursor: pointer;
+                  border: 2px solid #3B82F6;
                 }
               `}} />
             </motion.div>

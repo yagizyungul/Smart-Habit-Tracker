@@ -353,23 +353,29 @@ export default function Dashboard() {
         </motion.div>
       </motion.div>
 
-      {/* Gamification + AI Insights */}
-      <motion.div variants={containerVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <motion.div variants={itemVariants}>
-          <GamificationCard />
-        </motion.div>
-        <motion.div variants={itemVariants}>
-          <AIInsights />
-        </motion.div>
-      </motion.div>
+      {/* Alt Kısım: Gamification, Heatmap & AI Insights */}
+      <motion.div variants={containerVariants} className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+        {/* Sol ve Orta Kolon: Gamification + Heatmap */}
+        <div className="xl:col-span-2 space-y-5">
+          <motion.div variants={itemVariants}>
+            <GamificationCard />
+          </motion.div>
+          <motion.div variants={itemVariants} className="glass-card p-6">
+            <h2 className="text-base font-bold text-slate-100 mb-6">Son 30 Gün — Aktivite Haritası</h2>
+            <HeatmapGrid data={overviewData?.dailyLast30 ?? []} />
+          </motion.div>
+        </div>
 
-      {/* Heatmap */}
-      <motion.div
-        variants={itemVariants}
-        className="glass-card p-6"
-      >
-        <h2 className="text-base font-bold text-slate-100 mb-6">Son 30 Gün — Aktivite Haritası</h2>
-        <HeatmapGrid data={overviewData?.dailyLast30 ?? []} />
+        {/* Sağ Kolon: AI Insights & Motivasyon */}
+        <div className="space-y-5">
+          <motion.div variants={itemVariants} className="h-full">
+            <AIInsights />
+          </motion.div>
+          <motion.div variants={itemVariants} className="glass-card p-6 flex flex-col justify-center text-center" style={{ minHeight: '120px', background: 'rgba(103,192,144,0.05)', border: '1px solid rgba(103,192,144,0.1)' }}>
+            <p className="text-sm font-bold text-slate-300 italic leading-relaxed mb-3">"Başarı her gün tekrarlanan küçük çabaların toplamıdır."</p>
+            <p className="text-[10px] font-black text-glow-mint uppercase tracking-widest">— Robert Collier</p>
+          </motion.div>
+        </div>
       </motion.div>
     </motion.div>
   )

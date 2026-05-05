@@ -98,114 +98,141 @@ export default function Friends() {
         </motion.button>
       </div>
 
-      {requests.length > 0 && (
-        <div className="glass-card p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <UserPlus className="w-4 h-4 text-glow-mint" />
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-300">
-              Gelen İstekler ({requests.length})
-            </h2>
-          </div>
-          <div className="space-y-2">
-            {requests.map((r) => (
-              <div
-                key={r._id}
-                className="flex items-center gap-3 p-3 rounded-xl"
-                style={{ background: 'rgba(255,255,255,0.03)' }}
-              >
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ background: 'rgba(170,255,199,0.1)', border: '1px solid rgba(170,255,199,0.2)' }}
-                >
-                  {r.avatarEmoji || '🌱'}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-bold text-slate-100 truncate">{r.name}</div>
-                  {r.bio && <div className="text-xs text-slate-500 truncate">{r.bio}</div>}
-                </div>
-                <button
-                  onClick={() => accept(r._id)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest"
-                  style={{
-                    background: 'rgba(103,192,144,0.15)',
-                    color: 'var(--glow-mint)',
-                    border: '1px solid rgba(103,192,144,0.3)',
-                  }}
-                >
-                  <Check className="w-3.5 h-3.5 inline" /> Kabul
-                </button>
-                <button
-                  onClick={() => reject(r._id)}
-                  className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Sol Kolon: Lider Tablosu */}
+        <div className="lg:col-span-2">
+          <div className="glass-card p-5 h-full">
+            <div className="flex items-center gap-2 mb-4">
+              <Crown className="w-4 h-4 text-glow-mint" />
+              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-300">
+                Lider Tablosu
+              </h2>
+            </div>
+
+            {leaderboard.length === 1 ? (
+              <div className="text-center py-10">
+                <Users className="w-12 h-12 mx-auto text-slate-600 mb-3" />
+                <p className="text-sm text-slate-400 mb-1">Henüz arkadaşın yok</p>
+                <p className="text-xs text-slate-600">Arkadaş ekle, birlikte motive olun</p>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="glass-card p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Crown className="w-4 h-4 text-glow-mint" />
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-300">
-            Lider Tablosu
-          </h2>
-        </div>
-
-        {leaderboard.length === 1 ? (
-          <div className="text-center py-10">
-            <Users className="w-12 h-12 mx-auto text-slate-600 mb-3" />
-            <p className="text-sm text-slate-400 mb-1">Henüz arkadaşın yok</p>
-            <p className="text-xs text-slate-600">Arkadaş ekle, birlikte motive olun</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {leaderboard.map((row, i) => {
-              const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`
-              return (
-                <div
-                  key={row._id}
-                  className="flex items-center gap-3 p-3 rounded-xl transition-all"
-                  style={{
-                    background: row.isMe ? 'rgba(170,255,199,0.06)' : 'rgba(255,255,255,0.03)',
-                    border: row.isMe ? '1px solid rgba(170,255,199,0.2)' : '1px solid transparent',
-                  }}
-                >
-                  <div className="w-9 text-center font-bold text-sm">
-                    {i < 3 ? <span className="text-xl">{medal}</span> : <span className="text-slate-500">{medal}</span>}
-                  </div>
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                    style={{ background: 'rgba(255,255,255,0.05)' }}
-                  >
-                    {row.avatarEmoji || '🌱'}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className={`text-sm font-bold truncate ${row.isMe ? 'text-glow-mint' : 'text-slate-100'}`}>
-                      {row.name} {row.isMe && '(sen)'}
-                    </div>
-                    <div className="text-xs text-slate-500">{row.totalCheckins} check-in</div>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
-                    style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}
-                  >
-                    <Flame className="w-3.5 h-3.5 text-amber-400" />
-                    <span className="text-sm font-bold text-amber-300">{row.bestStreak}</span>
-                  </div>
-                  {!row.isMe && (
-                    <button
-                      onClick={() => removeFriend(row._id)}
-                      className="p-2 text-slate-600 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
-                      title="Arkadaşlıktan çıkar"
+            ) : (
+              <div className="space-y-2">
+                {leaderboard.map((row, i) => {
+                  const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`
+                  return (
+                    <div
+                      key={row._id}
+                      className="flex items-center gap-3 p-3 rounded-xl transition-all"
+                      style={{
+                        background: row.isMe ? 'rgba(170,255,199,0.06)' : 'rgba(255,255,255,0.03)',
+                        border: row.isMe ? '1px solid rgba(170,255,199,0.2)' : '1px solid transparent',
+                      }}
                     >
-                      <UserMinus className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              )
-            })}
+                      <div className="w-9 text-center font-bold text-sm">
+                        {i < 3 ? <span className="text-xl">{medal}</span> : <span className="text-slate-500">{medal}</span>}
+                      </div>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+                        style={{ background: 'rgba(255,255,255,0.05)' }}
+                      >
+                        {row.avatarEmoji || '🌱'}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className={`text-sm font-bold truncate ${row.isMe ? 'text-glow-mint' : 'text-slate-100'}`}>
+                          {row.name} {row.isMe && '(sen)'}
+                        </div>
+                        <div className="text-xs text-slate-500">{row.totalCheckins} check-in</div>
+                      </div>
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
+                        style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}
+                      >
+                        <Flame className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="text-sm font-bold text-amber-300">{row.bestStreak}</span>
+                      </div>
+                      {!row.isMe && (
+                        <button
+                          onClick={() => removeFriend(row._id)}
+                          className="p-2 text-slate-600 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+                          title="Arkadaşlıktan çıkar"
+                        >
+                          <UserMinus className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Sağ Kolon: İstekler ve Arkadaş Ekle */}
+        <div className="space-y-6">
+          {requests.length > 0 && (
+            <div className="glass-card p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <UserPlus className="w-4 h-4 text-glow-mint" />
+                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-300">
+                  Gelen İstekler ({requests.length})
+                </h2>
+              </div>
+              <div className="space-y-2">
+                {requests.map((r) => (
+                  <div
+                    key={r._id}
+                    className="flex flex-col gap-3 p-3 rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.03)' }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+                        style={{ background: 'rgba(170,255,199,0.1)', border: '1px solid rgba(170,255,199,0.2)' }}
+                      >
+                        {r.avatarEmoji || '🌱'}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-bold text-slate-100 truncate">{r.name}</div>
+                        {r.bio && <div className="text-xs text-slate-500 truncate">{r.bio}</div>}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 w-full">
+                      <button
+                        onClick={() => accept(r._id)}
+                        className="flex-1 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-all"
+                        style={{
+                          background: 'rgba(103,192,144,0.15)',
+                          color: 'var(--glow-mint)',
+                          border: '1px solid rgba(103,192,144,0.3)',
+                        }}
+                      >
+                        <Check className="w-3.5 h-3.5 inline mb-0.5" /> Kabul
+                      </button>
+                      <button
+                        onClick={() => reject(r._id)}
+                        className="flex-1 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest text-slate-400 bg-white/5 hover:bg-red-400/10 hover:text-red-400 transition-all"
+                      >
+                        Reddet
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="glass-card p-6 flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4"
+              style={{ background: 'rgba(170,255,199,0.1)' }}>
+              <Search className="w-5 h-5 text-glow-mint" />
+            </div>
+            <h3 className="text-sm font-bold text-white mb-2">Yeni Arkadaşlar Bul</h3>
+            <p className="text-xs text-slate-400 mb-5">Sisteme yeni kişiler ekleyerek lider tablosundaki rekabeti artır.</p>
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="w-full btn-primary py-2.5 text-sm"
+            >
+              Ara ve Ekle
+            </button>
+          </div>
+        </div>
       </div>
 
       <AnimatePresence>
