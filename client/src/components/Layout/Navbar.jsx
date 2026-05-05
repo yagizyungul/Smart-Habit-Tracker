@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Target, BarChart2, Sparkles, LogOut, Menu, X, Zap, Users } from 'lucide-react'
+import { LayoutDashboard, Target, BarChart2, Sparkles, LogOut, Menu, X, Zap, Users, Timer } from 'lucide-react'
 import NotificationsBell from '../NotificationsBell'
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/habits', label: 'Alışkanlıklar', icon: Target },
+  { to: '/focus', label: 'Odak', icon: Timer },
   { to: '/analytics', label: 'Analitik', icon: BarChart2 },
   { to: '/inspiration', label: 'İlham', icon: Sparkles },
   { to: '/friends', label: 'Arkadaşlar', icon: Users },

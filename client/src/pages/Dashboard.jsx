@@ -171,7 +171,7 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Stat cards */}
-      <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           label="Bugün"
           value={`${completedToday}/${totalToday}`}
@@ -199,6 +199,13 @@ export default function Dashboard() {
           sub="son 30 günde"
           icon={Star}
           color="#67C090"
+        />
+        <StatCard
+          label="Odaklanma"
+          value={`${Math.floor((analytics?.weeklyFocusMinutes ?? 0) / 60)}s ${(analytics?.weeklyFocusMinutes ?? 0) % 60}d`}
+          sub="bu hafta"
+          icon={TrendingUp}
+          color="#AAFFC7"
         />
       </motion.div>
 

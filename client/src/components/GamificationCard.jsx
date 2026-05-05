@@ -1,16 +1,32 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Trophy, Sparkles, Lock } from 'lucide-react'
+import confetti from 'canvas-confetti'
 import api from '../services/api'
 
 export default function GamificationCard() {
   const [data, setData] = useState(null)
   const [showAllBadges, setShowAllBadges] = useState(false)
+  const prevLevelRef = useRef(null)
 
   useEffect(() => {
     let active = true
     api.get('/api/gamification/profile')
-      .then((res) => { if (active) setData(res.data) })
+      .then((res) => { 
+        if (!active) return
+        
+        // Seviye atlama kontrolü ve konfeti
+        if (prevLevelRef.current !== null && res.data.level > prevLevelRef.current) {
+          confetti({
+            particleCount: 150,
+            spread: 80,
+            origin: { y: 0.6 },
+            colors: ['#67C090', '#AAFFC7', '#FCD34D']
+          })
+        }
+        prevLevelRef.current = res.data.level
+        setData(res.data) 
+      })
       .catch(() => {})
     return () => { active = false }
   }, [])

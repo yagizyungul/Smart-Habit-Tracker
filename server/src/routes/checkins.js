@@ -49,6 +49,40 @@ router.post(
     }
   }
 );
+// POST /api/checkins/focus — Pomodoro/Odak seansı bittiğinde
+router.post('/focus', async (req, res, next) => {
+  try {
+    const { habitId, date, focusMinutes } = req.body;
+    if (!habitId || !date || !focusMinutes) {
+      return res.status(400).json({ message: 'Eksik parametre' });
+    }
+
+    const habit = await Habit.findOne({ _id: habitId, userId: req.user.id, isActive: true });
+    if (!habit) return res.status(404).json({ message: 'Alışkanlık bulunamadı' });
+
+    // Gün için check-in var mı?
+    let checkin = await Checkin.findOne({ habitId, date, userId: req.user.id });
+
+    if (checkin) {
+      // Varsa dakikayı ekle
+      checkin.focusMinutes = (checkin.focusMinutes || 0) + focusMinutes;
+      await checkin.save();
+    } else {
+      // Yoksa yeni oluştur
+      checkin = await Checkin.create({
+        habitId,
+        userId: req.user.id,
+        date,
+        completed: true,
+        focusMinutes,
+      });
+    }
+
+    res.json(checkin);
+  } catch (err) {
+    next(err);
+  }
+});
 
 // GET /api/checkins/today
 router.get('/today', async (req, res, next) => {

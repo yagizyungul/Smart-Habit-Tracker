@@ -86,7 +86,16 @@ router.get('/dashboard', async (req, res, next) => {
 
     const monthlyCompletion = totalExpected > 0 ? Math.round((totalCompleted / totalExpected) * 100) : 0;
 
-    res.json({ todayProgress, weeklyData, bestStreak: bestStreakData, monthlyCompletion, perfectDays });
+    // Son 7 gün toplam odaklanma süresi
+    const start7 = daysAgo(6);
+    const checkins7 = await Checkin.find({
+      userId: req.user.id,
+      date: { $gte: start7, $lte: today },
+      completed: true,
+    });
+    const weeklyFocusMinutes = checkins7.reduce((acc, c) => acc + (c.focusMinutes || 0), 0);
+
+    res.json({ todayProgress, weeklyData, bestStreak: bestStreakData, monthlyCompletion, perfectDays, weeklyFocusMinutes });
   } catch (err) {
     next(err);
   }

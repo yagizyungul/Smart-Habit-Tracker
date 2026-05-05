@@ -32,6 +32,10 @@ const checkinSchema = new mongoose.Schema(
       maxlength: 500000,
       default: '',
     },
+    focusMinutes: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

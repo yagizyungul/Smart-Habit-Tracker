@@ -14,6 +14,7 @@ import Inspiration from './pages/Inspiration'
 import Onboarding from './pages/Onboarding'
 import Profile from './pages/Profile'
 import Friends from './pages/Friends'
+import Focus from './pages/Focus'
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
                   <Route path="/inspiration" element={<Inspiration />} />
                   <Route path="/friends" element={<Friends />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/focus" element={<Focus />} />
                 </Route>
               </Route>
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
