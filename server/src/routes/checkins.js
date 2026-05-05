@@ -25,7 +25,7 @@ router.post(
         return res.status(400).json({ message: errors.array()[0].msg });
       }
 
-      const { habitId, date, note } = req.body;
+      const { habitId, date, note, photo } = req.body;
 
       // Habit kullanıcıya ait mi kontrol et
       const habit = await Habit.findOne({ _id: habitId, userId: req.user.id, isActive: true });
@@ -36,6 +36,7 @@ router.post(
         userId: req.user.id,
         date,
         note: note || '',
+        photo: photo || '',
         completed: true,
       });
 
@@ -83,6 +84,47 @@ router.get('/habit/:habitId', async (req, res, next) => {
     }).sort({ date: -1 });
 
     res.json(checkins.map((c) => c.date));
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/checkins/journal/:habitId — fotoğraf/notları içeren timeline
+router.get('/journal/:habitId', async (req, res, next) => {
+  try {
+    const habit = await Habit.findOne({ _id: req.params.habitId, userId: req.user.id });
+    if (!habit) return res.status(404).json({ message: 'Alışkanlık bulunamadı' });
+
+    const checkins = await Checkin.find({
+      habitId: req.params.habitId,
+      userId: req.user.id,
+      completed: true,
+    }).sort({ date: -1 }).limit(60);
+
+    res.json(
+      checkins.map((c) => ({
+        _id: c._id,
+        date: c.date,
+        note: c.note,
+        photo: c.photo,
+      }))
+    );
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PATCH /api/checkins/:id — not/fotoğraf güncelle
+router.patch('/:id', async (req, res, next) => {
+  try {
+    const checkin = await Checkin.findOne({ _id: req.params.id, userId: req.user.id });
+    if (!checkin) return res.status(404).json({ message: 'Check-in bulunamadı' });
+
+    if (req.body.note !== undefined) checkin.note = req.body.note;
+    if (req.body.photo !== undefined) checkin.photo = req.body.photo;
+
+    await checkin.save();
+    res.json(checkin);
   } catch (err) {
     next(err);
   }

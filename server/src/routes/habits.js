@@ -52,7 +52,7 @@ router.post(
         return res.status(400).json({ message: errors.array()[0].msg });
       }
 
-      const { title, description, frequency, targetDays, color, icon, reminderTime } = req.body;
+      const { title, description, frequency, targetDays, color, icon, reminderTime, linkedHabitIds } = req.body;
 
       const habit = await Habit.create({
         userId: req.user.id,
@@ -63,6 +63,7 @@ router.post(
         color,
         icon,
         reminderTime,
+        linkedHabitIds: Array.isArray(linkedHabitIds) ? linkedHabitIds : [],
       });
 
       res.status(201).json(habit);
@@ -78,7 +79,7 @@ router.put('/:id', async (req, res, next) => {
     const habit = await Habit.findOne({ _id: req.params.id, userId: req.user.id });
     if (!habit) return res.status(404).json({ message: 'Alışkanlık bulunamadı' });
 
-    const allowedFields = ['title', 'description', 'frequency', 'targetDays', 'color', 'icon', 'reminderTime'];
+    const allowedFields = ['title', 'description', 'frequency', 'targetDays', 'color', 'icon', 'reminderTime', 'linkedHabitIds'];
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) habit[field] = req.body[field];
     });

@@ -23,6 +23,38 @@ const userSchema = new mongoose.Schema(
       minlength: 8,
       select: false,
     },
+    avatarEmoji: {
+      type: String,
+      default: '🌱',
+      maxlength: 8,
+    },
+    bio: {
+      type: String,
+      default: '',
+      maxlength: 200,
+    },
+    accentColor: {
+      type: String,
+      default: '#67C090',
+      match: /^#[0-9A-Fa-f]{6}$/,
+    },
+    themeMode: {
+      type: String,
+      enum: ['dark', 'light'],
+      default: 'dark',
+    },
+    notificationPrefs: {
+      emailReminders: { type: Boolean, default: true },
+      browserPush:    { type: Boolean, default: false },
+    },
+    friends: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    }],
+    friendRequests: [{
+      from: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      createdAt: { type: Date, default: Date.now },
+    }],
   },
   { timestamps: true }
 );

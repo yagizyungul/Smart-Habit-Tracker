@@ -10,7 +10,7 @@ const FREQ_OPTIONS = [
 ]
 const DAYS = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt']
 
-export default function HabitForm({ initial = null, onSave, onClose, loading = false }) {
+export default function HabitForm({ initial = null, onSave, onClose, loading = false, allHabits = [] }) {
   const [form, setForm] = useState({
     title: initial?.title ?? '',
     description: initial?.description ?? '',
@@ -18,7 +18,19 @@ export default function HabitForm({ initial = null, onSave, onClose, loading = f
     targetDays: initial?.targetDays ?? [0, 1, 2, 3, 4, 5, 6],
     color: initial?.color ?? '#8B5CF6',
     reminderTime: initial?.reminderTime ?? '',
+    linkedHabitIds: initial?.linkedHabitIds?.map((id) => String(id)) ?? [],
   })
+
+  const otherHabits = allHabits.filter((h) => !initial || String(h._id) !== String(initial._id))
+
+  const toggleLink = (id) => {
+    setForm((f) => ({
+      ...f,
+      linkedHabitIds: f.linkedHabitIds.includes(id)
+        ? f.linkedHabitIds.filter((x) => x !== id)
+        : [...f.linkedHabitIds, id],
+    }))
+  }
 
   const toggleDay = (i) => {
     setForm((f) => ({
@@ -202,6 +214,45 @@ export default function HabitForm({ initial = null, onSave, onClose, loading = f
                 ))}
               </div>
             </div>
+
+            {/* Habit stacking */}
+            {otherHabits.length > 0 && (
+              <div className="space-y-2">
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-widest">
+                  Bağlantılı Alışkanlıklar <span className="opacity-70 normal-case">(Habit Stacking)</span>
+                </label>
+                <p className="text-[11px] text-slate-600 -mt-1">
+                  Bu alışkanlıktan sonra yapılacakları seç — dashboard'da zincir olarak gösterilir.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {otherHabits.map((h) => {
+                    const id = String(h._id)
+                    const active = form.linkedHabitIds.includes(id)
+                    return (
+                      <motion.button
+                        key={id}
+                        type="button"
+                        onClick={() => toggleLink(id)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all"
+                        style={active ? {
+                          background: `${h.color || '#8B5CF6'}20`,
+                          border: `1px solid ${h.color || '#8B5CF6'}60`,
+                          color: '#fff',
+                        } : {
+                          background: 'rgba(255,255,255,0.04)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: '#94A3B8',
+                        }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: h.color || '#8B5CF6' }} />
+                        {h.title}
+                      </motion.button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Reminder time */}
             <div className="space-y-1.5">

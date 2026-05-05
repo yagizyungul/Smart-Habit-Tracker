@@ -27,6 +27,11 @@ const checkinSchema = new mongoose.Schema(
       maxlength: 200,
       default: '',
     },
+    photo: {
+      type: String,
+      maxlength: 500000,
+      default: '',
+    },
   },
   { timestamps: true }
 );

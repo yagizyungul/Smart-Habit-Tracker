@@ -1,13 +1,20 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { Play, Link2 } from 'lucide-react'
 
 const FREQ_LABELS = { daily: 'Her gün', weekly: 'Haftalık', custom: 'Özel' }
 
-export default function HabitCard({ habit, checked, onCheck, completionRate = 0 }) {
+export default function HabitCard({ habit, checked, onCheck, completionRate = 0, onStartFocus, linkedTitles = [] }) {
   const handleCheck = (e) => {
     e.preventDefault()
     e.stopPropagation()
     onCheck(habit._id, checked)
+  }
+
+  const handleFocus = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onStartFocus?.(habit)
   }
 
   const color = habit.color || '#8B5CF6'
@@ -96,6 +103,33 @@ export default function HabitCard({ habit, checked, onCheck, completionRate = 0 
             />
           </div>
         </div>
+
+        {/* Linked habits chain */}
+        {linkedTitles.length > 0 && (
+          <div className="mt-3 flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+            <Link2 className="w-3 h-3 flex-shrink-0" />
+            <span className="truncate">Sonra: {linkedTitles.join(' → ')}</span>
+          </div>
+        )}
+
+        {/* Footer actions */}
+        {onStartFocus && (
+          <div className="mt-3 pt-3 border-t border-white/5 flex justify-end">
+            <motion.button
+              onClick={handleFocus}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
+              style={{
+                background: `${color}15`,
+                border: `1px solid ${color}30`,
+                color,
+              }}
+              whileTap={{ scale: 0.94 }}
+              whileHover={{ background: `${color}25` }}
+            >
+              <Play className="w-3 h-3" /> Odak Modu
+            </motion.button>
+          </div>
+        )}
       </motion.div>
     </Link>
   )

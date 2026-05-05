@@ -51,6 +51,11 @@ const habitSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    linkedHabitIds: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'Habit',
+      default: [],
+    },
   },
   { timestamps: true }
 );

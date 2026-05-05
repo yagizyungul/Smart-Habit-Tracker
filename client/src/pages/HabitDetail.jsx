@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { motion } from 'framer-motion'
-import { ChevronLeft, Pencil, Trash2, Flame, Star, TrendingUp, Calendar } from 'lucide-react'
+import { ChevronLeft, Flame, Star, TrendingUp, Calendar, Play } from 'lucide-react'
 import api from '../services/api'
 import HabitForm from '../components/HabitForm'
 import HeatmapGrid from '../components/HeatmapGrid'
 import LoadingSpinner from '../components/LoadingSpinner'
+import HabitJournal from '../components/HabitJournal'
+import PomodoroModal from '../components/PomodoroModal'
 
 const FREQ_LABELS = { daily: 'Her gün', weekly: 'Haftalık', custom: 'Özel günler' }
 
@@ -58,20 +60,24 @@ export default function HabitDetail() {
   const [showEdit, setShowEdit] = useState(false)
   const [loading, setLoading] = useState(true)
   const [editLoading, setEditLoading] = useState(false)
+  const [showFocus, setShowFocus] = useState(false)
+  const [allHabits, setAllHabits] = useState([])
 
   useEffect(() => { loadData() }, [id])
 
   const loadData = async () => {
     setLoading(true)
     try {
-      const [habitRes, analyticsRes, checkinsRes] = await Promise.all([
+      const [habitRes, analyticsRes, checkinsRes, allRes] = await Promise.all([
         api.get(`/api/habits/${id}`),
         api.get(`/api/analytics/habit/${id}`),
         api.get(`/api/checkins/habit/${id}`),
+        api.get('/api/habits'),
       ])
       setHabit(habitRes.data)
       setAnalytics(analyticsRes.data)
       setCheckinDates(checkinsRes.data)
+      setAllHabits(allRes.data)
     } catch (err) {
       console.error(err)
     } finally {
@@ -164,7 +170,22 @@ export default function HabitDetail() {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
+          <motion.button
+            onClick={() => setShowFocus(true)}
+            className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 transition-all"
+            style={{
+              background: `linear-gradient(135deg, ${color}25, ${color}40)`,
+              border: `1px solid ${color}50`,
+              color: '#fff',
+              boxShadow: `0 0 18px ${color}30`,
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Play className="w-3.5 h-3.5" />
+            Odak Modu
+          </motion.button>
           <motion.button
             onClick={() => setShowEdit(true)}
             className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white transition-all"
@@ -238,12 +259,32 @@ export default function HabitDetail() {
         </motion.div>
       </motion.div>
 
+      {/* Visual Journal */}
+      <motion.div variants={itemVariants}>
+        <HabitJournal habitId={id} color={color} />
+      </motion.div>
+
       {showEdit && (
         <HabitForm
           initial={habit}
           onSave={handleEdit}
           onClose={() => setShowEdit(false)}
           loading={editLoading}
+          allHabits={allHabits}
+        />
+      )}
+
+      {showFocus && (
+        <PomodoroModal
+          habit={habit}
+          onClose={() => setShowFocus(false)}
+          onComplete={async () => {
+            const today = new Date().toISOString().split('T')[0]
+            try {
+              await api.post('/api/checkins', { habitId: id, date: today })
+              await loadData()
+            } catch {}
+          }}
         />
       )}
     </motion.div>

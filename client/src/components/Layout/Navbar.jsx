@@ -2,13 +2,15 @@ import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Target, BarChart2, Sparkles, LogOut, Menu, X, Zap } from 'lucide-react'
+import { LayoutDashboard, Target, BarChart2, Sparkles, LogOut, Menu, X, Zap, Users } from 'lucide-react'
+import NotificationsBell from '../NotificationsBell'
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/habits', label: 'Alışkanlıklar', icon: Target },
   { to: '/analytics', label: 'Analitik', icon: BarChart2 },
   { to: '/inspiration', label: 'İlham', icon: Sparkles },
+  { to: '/friends', label: 'Arkadaşlar', icon: Users },
 ]
 
 export default function Navbar() {
@@ -69,16 +71,21 @@ export default function Navbar() {
             </div>
 
             {/* User section */}
-            <div className="hidden sm:flex items-center gap-4">
-              <div className="flex items-center gap-3 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5">
-                <div 
+            <div className="hidden sm:flex items-center gap-2">
+              <NotificationsBell />
+              <NavLink
+                to="/profile"
+                className="flex items-center gap-3 px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all"
+                title="Profil & Ayarlar"
+              >
+                <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-[#124170]"
-                  style={{ background: 'linear-gradient(135deg, #67C090, #AAFFC7)' }}
+                  style={{ background: 'linear-gradient(135deg, var(--accent-green), var(--glow-mint))' }}
                 >
-                  {initial}
+                  {user?.avatarEmoji || initial}
                 </div>
                 <span className="text-sm font-medium text-slate-300">{user?.name}</span>
-              </div>
+              </NavLink>
               <button
                 onClick={handleLogout}
                 className="p-2.5 text-slate-500 rounded-xl transition-all duration-300 hover:text-red-400 hover:bg-red-400/10"
@@ -88,14 +95,16 @@ export default function Navbar() {
               </button>
             </div>
 
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setOpen(!open)}
-              className="sm:hidden p-2 text-slate-400 hover:text-slate-200 rounded-lg transition-all"
-              style={{ ':hover': { background: 'rgba(255,255,255,0.06)' } }}
-            >
-              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            {/* Mobile section */}
+            <div className="sm:hidden flex items-center gap-1">
+              <NotificationsBell />
+              <button
+                onClick={() => setOpen(!open)}
+                className="p-2 text-slate-400 hover:text-slate-200 rounded-lg transition-all"
+              >
+                {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
       </nav>
 
@@ -130,23 +139,28 @@ export default function Navbar() {
                   )}
                 </NavLink>
               ))}
-              <div className="flex items-center justify-between px-4 py-4 mt-2 border-t border-white/5">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-[#124170]"
-                    style={{ background: 'linear-gradient(135deg, #67C090, #AAFFC7)' }}
-                  >
-                    {initial}
-                  </div>
-                  <span className="text-sm font-medium text-slate-300">{user?.name}</span>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors"
+              <NavLink
+                to="/profile"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-all border-t border-white/5 mt-2 pt-4"
+              >
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-[#124170]"
+                  style={{ background: 'linear-gradient(135deg, var(--accent-green), var(--glow-mint))' }}
                 >
-                  <LogOut className="w-4 h-4" />
-                  ÇIKIŞ
-                </button>
-              </div>
+                  {user?.avatarEmoji || initial}
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-slate-200">{user?.name}</div>
+                  <div className="text-[10px] uppercase tracking-widest font-bold text-slate-500">Profil & Ayarlar</div>
+                </div>
+              </NavLink>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-3 w-full text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300 hover:bg-red-400/5 rounded-xl transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Çıkış Yap
+              </button>
             </div>
           </motion.div>
         )}

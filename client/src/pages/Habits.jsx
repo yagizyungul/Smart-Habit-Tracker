@@ -5,6 +5,7 @@ import api from '../services/api'
 import HabitCard from '../components/HabitCard'
 import HabitForm from '../components/HabitForm'
 import LoadingSpinner from '../components/LoadingSpinner'
+import PomodoroModal from '../components/PomodoroModal'
 import { useDataCache, CACHE_KEYS } from '../context/DataCacheContext'
 
 const FILTERS = [
@@ -31,6 +32,7 @@ export default function Habits() {
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(true)
   const [formLoading, setFormLoading] = useState(false)
+  const [focusHabit, setFocusHabit] = useState(null)
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -222,6 +224,10 @@ export default function Habits() {
                   checked={checkedIds.has(String(habit._id))}
                   onCheck={handleCheck}
                   completionRate={completionRates[habit._id] ?? 0}
+                  onStartFocus={setFocusHabit}
+                  linkedTitles={(habit.linkedHabitIds || [])
+                    .map((id) => habits.find((h) => String(h._id) === String(id))?.title)
+                    .filter(Boolean)}
                 />
               </motion.div>
             ))}
@@ -230,7 +236,28 @@ export default function Habits() {
       )}
 
       {showForm && (
-        <HabitForm onSave={handleCreate} onClose={() => setShowForm(false)} loading={formLoading} />
+        <HabitForm
+          onSave={handleCreate}
+          onClose={() => setShowForm(false)}
+          loading={formLoading}
+          allHabits={habits}
+        />
+      )}
+
+      {focusHabit && (
+        <PomodoroModal
+          habit={focusHabit}
+          onClose={() => setFocusHabit(null)}
+          onComplete={async () => {
+            const habitId = String(focusHabit._id)
+            if (checkedIds.has(habitId)) return
+            try {
+              await api.post('/api/checkins', { habitId, date: today })
+              setCheckedIds((prev) => new Set([...prev, habitId]))
+              cache.invalidateMany(CACHE_KEYS.CHECKINS_TODAY, CACHE_KEYS.ANALYTICS_DASHBOARD)
+            } catch {}
+          }}
+        />
       )}
     </motion.div>
   )

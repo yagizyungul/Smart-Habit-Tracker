@@ -6,6 +6,8 @@ import { Flame, TrendingUp, Calendar, Star, Plus, Check } from 'lucide-react'
 import api from '../services/api'
 import HeatmapGrid from '../components/HeatmapGrid'
 import LoadingSpinner from '../components/LoadingSpinner'
+import GamificationCard from '../components/GamificationCard'
+import AIInsights from '../components/AIInsights'
 import { useAuth } from '../context/AuthContext'
 import { useDataCache, CACHE_KEYS } from '../context/DataCacheContext'
 
@@ -341,6 +343,16 @@ export default function Dashboard() {
           ) : (
             <div className="h-40 flex items-center justify-center text-slate-600 text-sm">Henüz veri yok</div>
           )}
+        </motion.div>
+      </motion.div>
+
+      {/* Gamification + AI Insights */}
+      <motion.div variants={containerVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <motion.div variants={itemVariants}>
+          <GamificationCard />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <AIInsights />
         </motion.div>
       </motion.div>
 

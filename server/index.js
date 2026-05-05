@@ -10,6 +10,9 @@ const habitRoutes = require('./src/routes/habits');
 const checkinRoutes = require('./src/routes/checkins');
 const analyticsRoutes = require('./src/routes/analytics');
 const aiRoutes = require('./src/routes/ai');
+const gamificationRoutes = require('./src/routes/gamification');
+const userRoutes = require('./src/routes/users');
+const socialRoutes = require('./src/routes/social');
 const { errorHandler, notFound } = require('./src/middleware/errorHandler');
 const { loginLimiter, generalLimiter } = require('./src/middleware/rateLimiter');
 const { startReminderScheduler } = require('./src/services/emailReminder');
@@ -46,7 +49,7 @@ app.use(
 
 app.use(helmet());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '600kb' }));
 app.use(generalLimiter);
 
 // Routes — loginLimiter sadece auth route'unda tanımlı
@@ -55,6 +58,9 @@ app.use('/api/habits', habitRoutes);
 app.use('/api/checkins', checkinRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/gamification', gamificationRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/social', socialRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 

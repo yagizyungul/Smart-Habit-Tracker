@@ -39,7 +39,15 @@ router.post(
 
       res.status(201).json({
         token,
-        user: { _id: user._id, name: user.name, email: user.email, createdAt: user.createdAt },
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          avatarEmoji: user.avatarEmoji,
+          accentColor: user.accentColor,
+          notificationPrefs: user.notificationPrefs,
+          createdAt: user.createdAt,
+        },
       });
     } catch (err) {
       next(err);
@@ -73,7 +81,15 @@ router.post(
 
       res.json({
         token,
-        user: { _id: user._id, name: user.name, email: user.email, createdAt: user.createdAt },
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          avatarEmoji: user.avatarEmoji,
+          accentColor: user.accentColor,
+          notificationPrefs: user.notificationPrefs,
+          createdAt: user.createdAt,
+        },
       });
     } catch (err) {
       next(err);
@@ -86,7 +102,17 @@ router.get('/me', protect, async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
-    res.json({ _id: user._id, name: user.name, email: user.email, createdAt: user.createdAt });
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatarEmoji: user.avatarEmoji,
+      bio: user.bio,
+      accentColor: user.accentColor,
+      themeMode: user.themeMode,
+      notificationPrefs: user.notificationPrefs,
+      createdAt: user.createdAt,
+    });
   } catch (err) {
     next(err);
   }
