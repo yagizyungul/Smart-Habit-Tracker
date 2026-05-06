@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import api from '../services/api'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, Send, X, Square, Bot, User as UserIcon, Plus, Check, Sparkles } from 'lucide-react'
+import { Mic, Send, X, Square, Bot, User as UserIcon, Plus, Check, Sparkles, Volume2 } from 'lucide-react'
 
 function speak(text, onEnd) {
   window.speechSynthesis.cancel()
@@ -81,8 +81,7 @@ export default function VoiceCoach() {
       }
       setMessages((prev) => [...prev, assistantMsg])
       
-      if (data.reply) speak(data.reply, () => setSpeaking(false))
-      setSpeaking(true)
+      // speak(data.reply, () => setSpeaking(false)) // Otomatik okuma kaldırıldı
     } catch (err) {
       const status = err?.response?.status
       if (status === 429) {
@@ -247,6 +246,21 @@ export default function VoiceCoach() {
                       <div className="flex flex-col gap-3">
                         <div className="whitespace-pre-wrap">{m.content}</div>
                         
+                        {m.role === 'assistant' && (
+                          <div className="flex items-center gap-2 mt-1">
+                            <button
+                              onClick={() => {
+                                setSpeaking(true)
+                                speak(m.content, () => setSpeaking(false))
+                              }}
+                              className="p-1.5 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 hover:text-[#AAFFC7] transition-all flex items-center gap-2 group/speaker"
+                            >
+                              <Volume2 size={14} className="group-hover/speaker:scale-110 transition-transform" />
+                              <span className="text-[10px] font-bold uppercase tracking-wider opacity-0 group-hover/speaker:opacity-100 transition-opacity">Dinle</span>
+                            </button>
+                          </div>
+                        )}
+
                         {m.suggestion && !m.suggestionApplied && (
                           <motion.div 
                             initial={{ opacity: 0, scale: 0.9 }}
