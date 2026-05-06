@@ -166,6 +166,10 @@ router.post('/chat', async (req, res, next) => {
 
     res.json({ reply, suggestion });
   } catch (err) {
+    console.error('❌ AI Chat Error:', err.message);
+    if (err.status === 429 || err.response?.status === 429) {
+      return res.status(429).json({ message: 'Gemini API limitine ulaşıldı. Lütfen biraz bekleyin.' });
+    }
     next(err);
   }
 });

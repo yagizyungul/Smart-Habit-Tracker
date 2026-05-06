@@ -33,15 +33,28 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://client-yagiz-yunuls-projects.vercel.app',
   'https://streakly-smart-habit-tracker-app.vercel.app',
-  ...parseOrigins(process.env.CLIENT_URL),
-  ...parseOrigins(process.env.CLIENT_URLS),
 ];
+
+const isOriginAllowed = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins.includes(origin)) return true;
+  // Vercel preview ve branch deployment'ları için dinamik kontrol
+  if (origin.endsWith('.vercel.app') && (origin.includes('streakly') || origin.includes('yagiz-yunuls'))) {
+    return true;
+  }
+  const extraOrigins = [...parseOrigins(process.env.CLIENT_URL), ...parseOrigins(process.env.CLIENT_URLS)];
+  return extraOrigins.includes(origin);
+};
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-      callback(new Error(`CORS policy: ${origin} izin listesinde yok`));
+      if (isOriginAllowed(origin)) {
+        callback(null, true);
+      } else {
+        console.error(`❌ CORS blocked origin: ${origin}`);
+        callback(new Error(`CORS policy: ${origin} izin listesinde yok`));
+      }
     },
     credentials: true,
   })
