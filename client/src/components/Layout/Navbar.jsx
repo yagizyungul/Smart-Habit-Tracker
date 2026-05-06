@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Target, BarChart2, Sparkles, LogOut, Menu, X, Zap, Users, Timer } from 'lucide-react'
+import { LayoutDashboard, Target, BarChart2, Sparkles, LogOut, Menu, X, Zap, Users, Timer, Moon, Sun } from 'lucide-react'
 import NotificationsBell from '../NotificationsBell'
+import { useTheme } from '../../context/ThemeContext'
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -16,6 +17,7 @@ const NAV = [
 
 export default function Navbar() {
   const { user, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
@@ -31,7 +33,7 @@ export default function Navbar() {
       <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-4">
         <div 
           className="max-w-7xl mx-auto glass-card px-6 h-16 flex items-center justify-between"
-          style={{ background: 'rgba(33, 91, 99, 0.6)', border: '1px solid rgba(170, 255, 199, 0.2)' }}
+          style={{ background: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
         >
 
             {/* Logo */}
@@ -73,6 +75,13 @@ export default function Navbar() {
 
             {/* User section */}
             <div className="hidden sm:flex items-center gap-2">
+              <button
+                onClick={toggleTheme}
+                className="p-2.5 text-slate-400 rounded-xl hover:bg-white/5 transition-all"
+                title={theme === 'dark' ? 'Açık Tema' : 'Koyu Tema'}
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
               <NotificationsBell />
               <NavLink
                 to="/profile"

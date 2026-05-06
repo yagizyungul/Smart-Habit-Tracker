@@ -10,6 +10,7 @@ import GamificationCard from '../components/GamificationCard'
 import AIInsights from '../components/AIInsights'
 import { useAuth } from '../context/AuthContext'
 import { useDataCache, CACHE_KEYS } from '../context/DataCacheContext'
+import XPGain from '../components/XPGain'
 
 const DARK_TOOLTIP = {
   background: 'rgba(18, 65, 112, 0.9)',
@@ -74,6 +75,7 @@ export default function Dashboard() {
   const [checkedIds, setCheckedIds] = useState(new Set())
   const [overviewData, setOverviewData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [xpAnims, setXpAnims] = useState([])
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -116,8 +118,13 @@ export default function Dashboard() {
     }
   }
 
-  const handleCheckin = async (habitId) => {
+  const handleCheckin = async (habitId, e) => {
     if (checkedIds.has(habitId)) return
+    
+    // XP Animasyonu Ekle
+    const newAnim = { id: Date.now(), x: e.clientX, y: e.clientY }
+    setXpAnims(prev => [...prev, newAnim])
+
     setCheckedIds((prev) => new Set([...prev, habitId]))
     try {
       await api.post('/api/checkins', { habitId, date: today })
@@ -263,13 +270,13 @@ export default function Dashboard() {
                 const done = checkedIds.has(String(habit._id))
                 const color = habit.color || '#8B5CF6'
                 return (
-                  <motion.div
-                    key={habit._id}
-                    className="flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer"
-                    style={{ background: done ? `${color}0C` : 'rgba(255,255,255,0.03)' }}
-                    whileHover={{ background: done ? `${color}14` : 'rgba(255,255,255,0.06)' }}
-                    onClick={() => handleCheckin(String(habit._id))}
-                  >
+                    <motion.div
+                      key={habit._id}
+                      className="flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer"
+                      style={{ background: done ? `${color}0C` : 'rgba(255,255,255,0.03)' }}
+                      whileHover={{ background: done ? `${color}14` : 'rgba(255,255,255,0.06)' }}
+                      onClick={(e) => handleCheckin(String(habit._id), e)}
+                    >
                     <motion.button
                       className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
                       style={done ? {
@@ -378,6 +385,17 @@ export default function Dashboard() {
           </motion.div>
         </div>
       </motion.div>
+
+      {/* XP Animasyonları */}
+      {xpAnims.map(anim => (
+        <XPGain 
+          key={anim.id} 
+          xp={10} 
+          x={anim.x} 
+          y={anim.y} 
+          onComplete={() => setXpAnims(prev => prev.filter(a => a.id !== anim.id))} 
+        />
+      ))}
     </motion.div>
   )
 }
