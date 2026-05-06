@@ -8,21 +8,33 @@ function speak(text, onEnd) {
   const utter = new SpeechSynthesisUtterance(text)
   const voices = window.speechSynthesis.getVoices()
   
-  // Basit dil tespiti: İngilizce karakter/kelime yoğunluğuna bakarak
-  const isEnglish = /^[a-zA-Z\s.,!?']+$/.test(text.substring(0, 50));
+  // En iyi Türkçe sesi bulmaya çalışalım (Google veya Microsoft'un doğal sesleri)
+  const preferredTrVoices = [
+    'Google Türkçe',
+    'Microsoft Tolga Online',
+    'Microsoft Yelda Online',
+    'Microsoft Tolga',
+    'Microsoft Yelda',
+    'Turkish Turkey'
+  ]
   
-  if (isEnglish) {
-    const enVoice = voices.find(v => v.lang.startsWith('en'));
-    if (enVoice) utter.voice = enVoice;
-    utter.lang = 'en-US';
+  let selectedVoice = voices.find(v => v.lang.startsWith('tr') && preferredTrVoices.some(p => v.name.includes(p)))
+  if (!selectedVoice) selectedVoice = voices.find(v => v.lang.startsWith('tr'))
+  
+  if (selectedVoice) {
+    utter.voice = selectedVoice
+    utter.lang = 'tr-TR'
   } else {
-    const trVoice = voices.find(v => v.lang.startsWith('tr'));
-    if (trVoice) utter.voice = trVoice;
-    utter.lang = 'tr-TR';
+    // İngilizce ise
+    const enVoice = voices.find(v => v.lang.startsWith('en'))
+    if (enVoice) utter.voice = enVoice
+    utter.lang = 'en-US'
   }
   
-  utter.rate = 1.05
-  utter.pitch = 1
+  utter.rate = 0.95 // Biraz daha sakin ve anlaşılır hız
+  utter.pitch = 1.05 // Hafif daha enerjik ton
+  utter.volume = 1
+  
   if (onEnd) utter.onend = onEnd
   window.speechSynthesis.speak(utter)
 }
