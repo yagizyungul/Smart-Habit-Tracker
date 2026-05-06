@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Navbar from './Navbar'
 import VoiceCoach from '../VoiceCoach'
+import SystemTour from '../SystemTour'
 
 function FloatingDashes() {
   const particles = useMemo(() => {
@@ -93,6 +94,7 @@ export default function AppLayout() {
     <div className="min-h-screen relative selection:bg-glow-mint/30 selection:text-glow-mint"
       style={{ background: 'radial-gradient(ellipse at 20% 20%, rgba(33,91,99,0.4) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(18,65,112,0.5) 0%, transparent 60%), #070d14' }}
     >
+      <SystemTour />
       {/* Animated mesh orbs */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-64 -left-64 w-[700px] h-[700px] rounded-full"

@@ -48,7 +48,7 @@ export default function Navbar() {
             </NavLink>
 
             {/* Desktop Nav */}
-            <div className="hidden sm:flex items-center gap-1">
+            <div id="nav-links" className="hidden sm:flex items-center gap-1">
               {NAV.map(({ to, label, icon: Icon }) => (
                 <NavLink
                   key={to}

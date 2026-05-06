@@ -171,7 +171,7 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Stat cards */}
-      <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <motion.div id="stat-cards" variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           label="Bugün"
           value={`${completedToday}/${totalToday}`}
@@ -214,6 +214,7 @@ export default function Dashboard() {
 
         {/* Today's habits */}
         <motion.div
+          id="today-habits"
           variants={itemVariants}
           className="rounded-2xl p-5"
           style={{

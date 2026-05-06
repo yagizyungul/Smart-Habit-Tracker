@@ -29,6 +29,7 @@ export default function AIInsights() {
 
   return (
     <motion.div
+      id="ai-insights"
       className="glass-card p-5 relative overflow-hidden"
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
