@@ -13,9 +13,9 @@ function getModels() {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY ortam değişkeni tanımlı değil');
   const genAI = new GoogleGenerativeAI(key);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   const jsonModel = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-1.5-flash',
     generationConfig: { responseMimeType: 'application/json' },
   });
   return { model, jsonModel };
