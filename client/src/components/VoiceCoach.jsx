@@ -324,12 +324,9 @@ export default function VoiceCoach() {
             <div className="p-5 border-t border-white/5 bg-[#0b1421]/90 shrink-0 relative z-10">
               <div className="flex items-center gap-3">
                 <motion.button
-                  onMouseDown={startListening}
-                  onMouseUp={stopListening}
-                  onTouchStart={startListening}
-                  onTouchEnd={stopListening}
+                  onClick={listening ? stopListening : startListening}
                   className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
-                    listening ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                    listening ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)] animate-pulse' : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
                   }`}
                   whileTap={{ scale: 0.9 }}
                 >
