@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { motion } from 'framer-motion'
-import { User, Mail, Lock, ArrowRight, Zap, CheckCircle2 } from 'lucide-react'
+import { User, Mail, Lock, ArrowRight, Zap, CheckCircle2, Eye, EyeOff } from 'lucide-react'
 
 function ParticleField() {
   const particles = useMemo(() =>
@@ -47,6 +47,7 @@ export default function Register() {
   const { register } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', email: '', password: '' })
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -160,15 +161,22 @@ export default function Register() {
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Şifre</label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 pointer-events-none" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 pointer-events-none z-10" />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="input-dark pl-10"
+                    className="input-dark pl-10 pr-10"
                     placeholder="En az 8 karakter"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400 transition-colors z-10"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
               </div>
 

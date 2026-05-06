@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import api from '../services/api'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, Send, X, Square, Bot, User as UserIcon } from 'lucide-react'
+import { Mic, Send, X, Square, Bot, User as UserIcon, Plus, Check, Sparkles } from 'lucide-react'
 
 function speak(text, onEnd) {
   window.speechSynthesis.cancel()
@@ -56,13 +56,21 @@ export default function VoiceCoach() {
     setLoading(true)
 
     try {
-      const history = messages.slice(-6).map((m) => ({
+      const history = messages.slice(-10).map((m) => ({
         role: m.role === 'assistant' ? 'model' : 'user',
         content: m.content,
       }))
       const { data } = await api.post('/api/ai/chat', { message: text, history })
-      const assistantMsg = { role: 'assistant', content: data.reply }
+      
+      const assistantMsg = { 
+        role: 'assistant', 
+        content: data.reply,
+        suggestion: data.suggestion 
+      }
       setMessages((prev) => [...prev, assistantMsg])
+      
+      if (data.reply) speak(data.reply, () => setSpeaking(false))
+      setSpeaking(true)
     } catch (err) {
       const status = err?.response?.status
       if (status === 429) {
@@ -119,11 +127,29 @@ export default function VoiceCoach() {
   }
 
   const quickQuestions = [
-    'Bu hafta nasıl gidiyorum?',
-    'Hangi alışkanlığa odaklanmalıyım?',
-    'Bugün neleri tamamlamadım?',
-    'Streak\'imi nasıl koruyabilirim?',
+    'Haftalık planımı yap',
+    'Zorlandığım günleri analiz et',
+    'Yeni bir alışkanlık önerir misin?',
+    'Performans özetimi ver',
   ]
+
+  const handleAcceptSuggestion = async (sug, msgIdx) => {
+    if (sug.type === 'add_habit') {
+      try {
+        setLoading(true)
+        await api.post('/api/habits', sug.habit)
+        // Mesajı güncelle ki buton kaybolsun veya "Eklendi" yazsın
+        const newMessages = [...messages]
+        newMessages[msgIdx].suggestionApplied = true
+        newMessages[msgIdx].content += "\n\n✅ Alışkanlık başarıyla eklendi!"
+        setMessages(newMessages)
+      } catch (err) {
+        alert('Alışkanlık eklenirken bir hata oluştu.')
+      } finally {
+        setLoading(false)
+      }
+    }
+  }
 
   return (
     <>
@@ -206,7 +232,43 @@ export default function VoiceCoach() {
                         : { background: 'rgba(255,255,255,0.06)' }
                       }
                     >
-                      {m.content}
+                      <div className="flex flex-col gap-3">
+                        <div className="whitespace-pre-wrap">{m.content}</div>
+                        
+                        {m.suggestion && !m.suggestionApplied && (
+                          <motion.div 
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="mt-2 p-4 rounded-xl bg-white/10 border border-white/10 space-y-3"
+                          >
+                            <div className="flex items-center gap-2 text-[11px] font-bold text-[#AAFFC7] uppercase tracking-widest">
+                              <Sparkles size={12} />
+                              AI Önerisi
+                            </div>
+                            
+                            {m.suggestion.type === 'add_habit' && (
+                              <>
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: m.suggestion.habit.color }}>
+                                    <Plus size={16} className="text-white" />
+                                  </div>
+                                  <div>
+                                    <div className="text-sm font-bold text-white">{m.suggestion.habit.title}</div>
+                                    <div className="text-[10px] text-slate-400 capitalize">{m.suggestion.habit.frequency}</div>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => handleAcceptSuggestion(m.suggestion, i)}
+                                  className="w-full py-2 rounded-lg bg-[#67C090] text-[#070d14] text-xs font-bold hover:bg-[#AAFFC7] transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <Check size={14} />
+                                  Alışkanlığı Listeme Ekle
+                                </button>
+                              </>
+                            )}
+                          </motion.div>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 </div>

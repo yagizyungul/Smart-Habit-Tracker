@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mail, Lock, ArrowRight, Zap } from 'lucide-react'
+import { Mail, Lock, ArrowRight, Zap, Eye, EyeOff } from 'lucide-react'
 
 const HERO_LINES = [
   { top: 'Alışkanlıklarını', bottom: 'Takip Et.' },
@@ -341,6 +341,7 @@ export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [lineIdx, setLineIdx] = useState(0)
@@ -604,8 +605,23 @@ export default function Login() {
                     <span style={{ fontSize: 11, color: '#67C090', fontWeight: 600, cursor: 'pointer', opacity: 0.8 }}>Şifremi Unuttum?</span>
                   </div>
                   <div style={{ position: 'relative' }}>
-                    <Lock style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#475569', pointerEvents: 'none' }}/>
-                    <input type="password" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className="input-dark" style={{ paddingLeft: 42 }} placeholder="••••••••"/>
+                    <Lock style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#475569', pointerEvents: 'none', zIndex: 10 }}/>
+                    <input 
+                      type={showPassword ? "text" : "password"} 
+                      required 
+                      value={form.password} 
+                      onChange={e => setForm({ ...form, password: e.target.value })} 
+                      className="input-dark" 
+                      style={{ paddingLeft: 42, paddingRight: 42 }} 
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#475569', padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
                 </motion.div>
 

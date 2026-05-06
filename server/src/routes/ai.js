@@ -22,19 +22,29 @@ function getModels() {
 }
 
 async function getUserContext(userId) {
+  const User = require('../models/User');
+  const user = await User.findById(userId);
   const today = new Date().toISOString().split('T')[0];
   const habits = await Habit.find({ userId, isActive: true });
 
   const todayCheckins = await Checkin.find({ userId, date: today, completed: true });
   const checkedIds = new Set(todayCheckins.map((c) => c.habitId.toString()));
 
+  // Son 30 günlük veriler
+  const start30 = new Date();
+  start30.setDate(start30.getDate() - 29);
+  const start30Str = start30.toISOString().split('T')[0];
+  
+  const allRecentCheckins = await Checkin.find({ 
+    userId, 
+    date: { $gte: start30Str, $lte: today },
+    completed: true 
+  });
+
   const habitDetails = await Promise.all(
     habits.map(async (h) => {
-      const checkins = await Checkin.find({ habitId: h._id, userId, completed: true });
-      const dates = checkins.map((c) => c.date);
-      const start30 = new Date();
-      start30.setDate(start30.getDate() - 29);
-      const start30Str = start30.toISOString().split('T')[0];
+      const hCheckins = allRecentCheckins.filter(c => c.habitId.toString() === h._id.toString());
+      const dates = hCheckins.map((c) => c.date);
       const { currentStreak, bestStreak } = calcStreak(dates, h.frequency, h.targetDays);
       const { completionRate } = calcCompletionRate(dates, start30Str, today, h.frequency, h.targetDays);
       return {
@@ -48,23 +58,74 @@ async function getUserContext(userId) {
     })
   );
 
+  // Günlük başarı trendi (haftanın günlerine göre)
+  const dayStats = [0, 0, 0, 0, 0, 0, 0]; // Pazar...Cumartesi
+  const dayExpectations = [0, 0, 0, 0, 0, 0, 0];
+  
+  for (let i = 0; i < 30; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dow = d.getDay();
+    const ds = d.toISOString().split('T')[0];
+    
+    habits.forEach(h => {
+      const isTarget = h.frequency === 'daily' || h.targetDays.includes(dow);
+      if (isTarget) {
+        dayExpectations[dow]++;
+        if (allRecentCheckins.some(c => c.habitId.toString() === h._id.toString() && c.date === ds)) {
+          dayStats[dow]++;
+        }
+      }
+    });
+  }
+
+  const dayNames = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+  const trends = dayNames.map((name, i) => {
+    const rate = dayExpectations[i] > 0 ? Math.round((dayStats[i] / dayExpectations[i]) * 100) : 0;
+    return `${name}: %${rate}`;
+  }).join(', ');
+
   const completedTodayCount = habitDetails.filter((h) => h.completedToday).length;
 
   return `
-Kullanıcının alışkanlık verileri (bugün: ${today}):
-- Toplam aktif alışkanlık: ${habits.length}
-- Bugün tamamlanan: ${completedTodayCount}/${habits.length}
+Kullanıcı Bilgileri:
+- İsim: ${user?.name || 'Kullanıcı'}
+- Bugün: ${today}
 
-Alışkanlık detayları:
-${habitDetails.map((h) => `• ${h.name}: %${h.completionRate30Days} tamamlanma (son 30 gün), mevcut seri: ${h.currentStreak} gün, en iyi seri: ${h.bestStreak} gün, bugün tamamlandı: ${h.completedToday ? 'Evet' : 'Hayır'}`).join('\n')}
+Alışkanlık Verileri:
+- Aktif Alışkanlık Sayısı: ${habits.length}
+- Bugünün Özeti: ${completedTodayCount}/${habits.length} tamamlandı.
+
+Detaylar (Son 30 Gün):
+${habitDetails.map((h) => `• ${h.name}: %${h.completionRate30Days} başarı, Seri: ${h.currentStreak} (En iyi: ${h.bestStreak}), Bugün: ${h.completedToday ? 'Tamamlandı' : 'Bekliyor'}`).join('\n')}
+
+Haftalık Başarı Trendi (Son 30 Gün Ortalaması):
+${trends}
   `.trim();
 }
 
-const SYSTEM_PROMPT = `Sen "Streakly AI Coach" adında bir kişisel alışkanlık koçusun.
-Kullanıcının habit tracker verilerine erişimin var ve bu verilere dayanarak kişiselleştirilmiş, motive edici tavsiyelerde bulunuyorsun.
-Her zaman Türkçe konuşuyorsun. Samimi, motive edici ve kısa cevaplar veriyorsun (maksimum 3-4 cümle).
-Kullanıcının verilerini analiz edip spesifik, uygulanabilir öneriler sunuyorsun.
-Asla genel tavsiyeler verme — her zaman kullanıcının kendi verilerine atıfta bulun.`;
+const SYSTEM_PROMPT = `Sen "Streakly AI Coach" adında, dünya standartlarında bir kişisel gelişim ve alışkanlık stratejistisin.
+Kullanıcının tüm alışkanlık verilerine, başarı trendlerine ve gün bazlı performansına erişimin var.
+
+GÖREVLERİN:
+1. Verileri analiz et: Kullanıcının hangi günlerde zorlandığını, hangi alışkanlıklarda düşüş yaşadığını tespit et.
+2. Kişiselleştirilmiş plan yap: Kullanıcı bir hedef belirttiğinde (örneğin "Kilo vermek istiyorum" veya "Daha üretken olmak istiyorum"), ona özel alışkanlıklar öner.
+3. Motive et ve takip et: Başarıları kutla, düşüşlerde çözüm odaklı yaklaş (örneğin "Salı günleri performansın düşük, hatırlatıcıyı sabah 09:00'a çekelim mi?").
+4. RAG & In-Context Learning: Sana sağlanan kullanıcı verilerini her cevabında bir "bağlam" (context) olarak kullan.
+
+CEVAP FORMATI:
+- Her zaman Türkçe konuş.
+- Samimi, enerjik ama profesyonel bir koç gibi davran.
+- Cevapların kısa ve öz olsun (max 4-5 cümle).
+- Eğer bir alışkanlık öneriyorsan veya bir değişiklik tavsiye ediyorsan, cevabının sonuna mutlaka JSON formatında bir [SUGGESTION] bloğu ekle (isteğe bağlı).
+
+Örnek Suggestion Formatı:
+[SUGGESTION]
+{
+  "type": "add_habit",
+  "habit": { "title": "Örnek Alışkanlık", "frequency": "daily", "color": "#67C090" }
+}
+[/SUGGESTION]`;
 
 // POST /api/ai/chat
 router.post('/chat', async (req, res, next) => {
@@ -78,8 +139,8 @@ router.post('/chat', async (req, res, next) => {
     const chat = model.startChat({
       history: [
         { role: 'user', parts: [{ text: `${SYSTEM_PROMPT}\n\n${userContext}` }] },
-        { role: 'model', parts: [{ text: 'Anlaşıldı, hazırım. Nasıl yardımcı olabilirim?' }] },
-        ...history.slice(-6).map((h) => ({
+        { role: 'model', parts: [{ text: 'Merhaba! Ben Streakly AI Coach. Verilerini inceledim ve hazırım. Bugün hedeflerine ulaşman için nasıl bir strateji belirleyelim?' }] },
+        ...history.slice(-10).map((h) => ({
           role: h.role === 'assistant' ? 'model' : 'user',
           parts: [{ text: h.content }],
         })),
@@ -87,8 +148,23 @@ router.post('/chat', async (req, res, next) => {
     });
     
     const result = await chat.sendMessage(message);
-    const reply = result.response.text();
-    res.json({ reply });
+    const fullReply = result.response.text();
+
+    // Suggestion ayıklama
+    let reply = fullReply;
+    let suggestion = null;
+    const suggestionMatch = fullReply.match(/\[SUGGESTION\]([\s\S]*?)\[\/SUGGESTION\]/);
+    
+    if (suggestionMatch) {
+      try {
+        suggestion = JSON.parse(suggestionMatch[1].trim());
+        reply = fullReply.replace(/\[SUGGESTION\][\s\S]*?\[\/SUGGESTION\]/, '').trim();
+      } catch (e) {
+        console.error('Suggestion parse error:', e);
+      }
+    }
+
+    res.json({ reply, suggestion });
   } catch (err) {
     next(err);
   }
